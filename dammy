@@ -6,27 +6,29 @@ SCRIPT_FILE_NAME=$(basename $0)
 SCRIPT_NAME=${SCRIPT_FILE_NAME%.*}
 SELF=$(cd $(dirname $0); pwd)
 LOGGING=false
-VERSION="1.1.0"
+VERSION="1.1.5"
 SEPARATER='---------------------------'
 
 function _usage() {
     echo "Usage: ${SCRIPT_NAME} [OPTIONS] [DESTNATION]..."
-    echo "  This script creates various files."
+    echo "  This script generate various files and directories."
     echo
     echo "Options:"
-    echo "  -h, --help                     Show help."
-    echo "  -v, --version                  Show script version."
-    echo "  -n, --number                   Specify the number of files to create."
-    echo "  -e, --ext                      Specify the extension of the file to be created."
-    echo "      --each                     Create a file in the specified intermediate directory."
+
+    echo "  -h, --help                     Show help"
+    echo "  -v, --version                  Show script version"
+    echo "  -n, --number                   Specify the number of files to create"
+    echo "  -e, --ext                      Specify the extension of the file to be created"
+    echo "      --each                     Create a file in the specified intermediate directory"
+    echo "      --cold-run                 Run script as test running"
     echo "      --verbose                  Print various logging information"
     echo
     echo "Example"
-    echo "  dammy -n 3 -e jpg              Generate three **.jpg in current directory."
+    echo "  dammy -n 3 -e jpg              Generate three **.jpg in current directory"
     echo "  dammy -e jpg xx/yy             Create ./xx/yy directory and generate a **.jpg"
-    echo "                                 in ./xx/yy dir.."
+    echo "                                 in ./xx/yy dir."
     echo "  dammy xx/yy{00..02}            Create ./xx/yy01, ./xx/yy02 and ./xx/yy02 directory"
-    echo "                                 and then generate **.txt in each dir. created."
+    echo "                                 and then generate **.txt in each dir. created"
     exit 0
 }
 
@@ -63,31 +65,41 @@ OUT_FILE_NUMBER=1
 IS_COLD_RUN=false
 IS_EACH=false
 
+TMP_DIR=''
+
 # $1: dir
 function _create_files() {
     local destination=$1
     while read -r random_str; do
-        _log "create: ${destination}/${random_str}.${OUT_FILE_EXT}"
-        ${IS_COLD_RUN} || {
-            mkdir -p ${destination} && {
-                touch ${destination}/${random_str}.${OUT_FILE_EXT}
-            }
+        mkdir -p ${destination} && {
+            touch ${destination}/${random_str}.${OUT_FILE_EXT}
+            _log "created: ${destination}/${random_str}.${OUT_FILE_EXT}"
         }
     done < <(dazai -n ${OUT_FILE_NUMBER} han -d '\n' -l 8 --no-symbol)
 }
 
 function _main() {
     for dir in ${DIRS[@]}; do
+
+        ${IS_COLD_RUN} && {
+            TMP_DIR=$(mktemp -d -t ${SCRIPT_NAME})
+            dir=${TMP_DIR}/${dir}
+        }
         _create_files ${dir}
 
         ${IS_EACH} && [ ${dir} != '.' ] && {
-            num=$(echo -n ${dir} | sed 's:[^/]::g' | wc -c)
+            num=$(echo -n ${dir} | sed "s:${TMP_DIR}/::" | sed 's:[^/]::g' | wc -c)
             for i in $(seq ${num}); do
                 dir=${dir%/*}
                 _create_files ${dir}
             done
         }
     done
+
+    [ ! -z ${TMP_DIR} ] && {
+        tree ${TMP_DIR} | sed "s:${TMP_DIR}:generate...:"
+        rm -rf ${TMP_DIR}
+    }
 }
 
 # -------------------------------------------------------------
@@ -180,4 +192,5 @@ _analyse_args_and_options $@ && {
     }
 }
 
+trap "rm ${TMP_DIR}" 1 2 3 15
 exit 0
