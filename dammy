@@ -68,13 +68,14 @@ IS_EACH=false
 
 TMP_DIR=''
 
-# $1: dir
+# $1: output directory
 function _create_files() {
     local destination=$1
     while read -r random_str; do
         mkdir -p ${destination} && {
             touch ${destination}/${random_str}.${OUT_FILE_EXT}
-            _log "created: ${destination}/${random_str}.${OUT_FILE_EXT}"
+            ${IS_COLD_RUN} || _log "
+                        created: ${destination}/${random_str}.${OUT_FILE_EXT}"
         }
     done < <(dazai -n ${OUT_FILE_NUMBER} han -d '\n' -l 8 --no-symbol)
 }
@@ -82,12 +83,18 @@ function _create_files() {
 function _main() {
     ${IS_COLD_RUN} && TMP_DIR=$(mktemp -d -t ${SCRIPT_NAME})
 
+    # create file / directories
     for dir in ${DIRS[@]}; do
         ${IS_COLD_RUN} && dir=${TMP_DIR}/${dir}
         _create_files ${dir}
 
+        # for --each option
         ${IS_EACH} && [ ${dir} != '.' ] && {
+
+            # Determine the depth of the directory hierarchy by the number of '/'.
             num=$(echo -n ${dir} | sed "s:${TMP_DIR}/::" | sed 's:[^/]::g' | wc -c)
+            [ ${num} -eq 0 ] && continue
+
             for i in $(seq ${num}); do
                 dir=${dir%/*}
                 _create_files ${dir}
@@ -95,6 +102,7 @@ function _main() {
         }
     done
 
+    # post process of the --cold-run option
     [ ! -z ${TMP_DIR} ] && {
         tree ${TMP_DIR} | sed "s:${TMP_DIR}:$(pwd):"
         rm -rf ${TMP_DIR}
