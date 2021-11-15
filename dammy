@@ -14,21 +14,22 @@ function _usage() {
     echo "  This script creates various files."
     echo
     echo "Options:"
-    echo "  -h, --help                     Show help."
-    echo "  -v, --version                  Show script version."
-#    echo "  -a, --long-a ARG               Option which must have argument."
-#    echo "  -b, --long-b [ARG]             Either with or without argument is possible."
-    echo "  -n, --number                   Specify the number of files to create."
-    echo "  -e, --ext                      Specify the extension of the file to be created."
-    echo "      --each                     Create a file in the specified intermediate directory."
+    echo "  -h, --help                     Show help"
+    echo "  -v, --version                  Show script version"
+#    echo "  -a, --long-a ARG               Option which must have argument"
+#    echo "  -b, --long-b [ARG]             Either with or without argument is possible"
+    echo "  -n, --number                   Specify the number of files to create"
+    echo "  -e, --ext                      Specify the extension of the file to be created"
+    echo "      --each                     Create a file in the specified intermediate directory"
+    echo "      --cold-run                 Run script as test running"
     echo "      --verbose                  Print various logging information"
     echo
     echo "Example"
-    echo "  dammy -n 3 -e jpg              Generate three **.jpg in current directory."
+    echo "  dammy -n 3 -e jpg              Generate three **.jpg in current directory"
     echo "  dammy -e jpg xx/yy             Create ./xx/yy directory and generate a **.jpg"
-    echo "                                 in ./xx/yy dir.."
+    echo "                                 in ./xx/yy dir."
     echo "  dammy xx/yy{00..02}            Create ./xx/yy01, ./xx/yy02 and ./xx/yy02 directory"
-    echo "                                 and then generate **.txt in each dir. created."
+    echo "                                 and then generate **.txt in each dir. created"
     exit 0
 }
 
