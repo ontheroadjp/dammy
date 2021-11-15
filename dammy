@@ -198,15 +198,29 @@ function _analyse_args_and_options() {
 }
 
 function _set_static_var() {
-    [ ${#ARG_VALUES[@]} -ne 0 ] && {
-        DIRS=($(echo ${ARG_VALUES[@]} | sed 's:/$::'))
-    } || {
-        DIRS=('.')
-    }
+    : ${ARG_VALUES:=.}
+    for i in ${ARG_VALUES[@]}; do
+        [ ${i} = '/' ] && DIRS+=(' /') && continue
+        DIRS+=($(echo ${i} | sed 's:/$::'))
+    done
 }
 
 function _verify_static_var() {
-    :
+    _verify_output_dirs
+}
+
+function _verify_output_dirs() {
+    for i in ${DIRS[@]}; do
+        if [[ "${i:0:1}" = '/' ]]; then
+            _err "Directories should be specified as relative paths."
+        fi
+        if [[ ! "$(pwd)/${i}" =~ "${HOME}" ]]; then
+            _err "${i} is not under your HOME directory."
+        fi
+        if [[ "$(pwd)/${i}" =~ '../' ]]; then
+            _err "Containing ../ in output directory is restricted."
+        fi
+    done
 }
 
 # -------------------------------------------------------------
