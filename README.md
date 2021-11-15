@@ -5,6 +5,10 @@ This script generates dammy file.
 
 ## Getting Started
 
+This script require dazai script.
+see: [ontheroadjp/dazai](https://github.com/ontheroadjp/dazai.git)
+
+
 ```bash
 git clone ontheroadjp/dammy
 
@@ -26,7 +30,7 @@ dammy
 ```
 
 - No arguments and no options you need.
-- File extention of the dammy file generated will be '.txt' in default. 
+- File extention of the dammy file generated will be '.txt' in default.
 - You are able to change file extension with ``-e`` option.
 
 ### Generate a dammy file with jpg extention into test/ directory.
@@ -35,7 +39,7 @@ dammy
 dammy -e jpg test
 ```
 
-- If there is not test directory it automatically created. 
+- If there is not test directory it automatically created.
 
 ### Generate five dammy files into test/ directory.
 
