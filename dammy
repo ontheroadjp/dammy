@@ -20,6 +20,7 @@ function _usage() {
 #    echo "  -b, --long-b [ARG]             Either with or without argument is possible."
     echo "  -n, --number                   Specify the number of files to create."
     echo "  -e, --ext                      Specify the extension of the file to be created."
+    echo "      --each                     Create a file in the specified intermediate directory."
     echo "      --verbose                  Print various logging information"
     echo
     echo "Example"
