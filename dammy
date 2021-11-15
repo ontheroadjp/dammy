@@ -14,6 +14,7 @@ function _usage() {
     echo "  This script generate various files and directories."
     echo
     echo "Options:"
+
     echo "  -h, --help                     Show help"
     echo "  -v, --version                  Show script version"
     echo "  -n, --number                   Specify the number of files to create"
