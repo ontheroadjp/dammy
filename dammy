@@ -82,12 +82,10 @@ function _create_files() {
 }
 
 function _main() {
-    for dir in ${DIRS[@]}; do
+    ${IS_COLD_RUN} && TMP_DIR=$(mktemp -d -t ${SCRIPT_NAME})
 
-        ${IS_COLD_RUN} && {
-            TMP_DIR=$(mktemp -d -t ${SCRIPT_NAME})
-            dir=${TMP_DIR}/${dir}
-        }
+    for dir in ${DIRS[@]}; do
+        ${IS_COLD_RUN} && dir=${TMP_DIR}/${dir}
         _create_files ${dir}
 
         ${IS_EACH} && [ ${dir} != '.' ] && {
