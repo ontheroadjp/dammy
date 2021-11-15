@@ -64,16 +64,32 @@ OUT_FILE_EXT='txt'
 OUT_FILE_NUMBER=1
 #OPT_B=""
 IS_COLD_RUN=false
+IS_EACH=false
+
+# $1: dir
+function _create_files() {
+    local destination=$1
+    while read -r random_str; do
+        _log "create: ${destination}/${random_str}.${OUT_FILE_EXT}"
+        ${IS_COLD_RUN} || {
+            mkdir -p ${destination} && {
+                touch ${destination}/${random_str}.${OUT_FILE_EXT}
+            }
+        }
+    done < <(dazai -n ${OUT_FILE_NUMBER} han -d '\n' -l 8 --no-symbol)
+}
 
 function _main() {
     for dir in ${DIRS[@]}; do
-        while read -r file; do
-            echo "${dir}/${file}.${OUT_FILE_EXT}"
-            ${IS_COLD_RUN} || {
-                [ ! -e ${dir} ] && mkdir -p ${dir}
-                touch ${dir}/${file}.${OUT_FILE_EXT}
-            }
-        done < <(dazai -n ${OUT_FILE_NUMBER} han -d '\n' -l 8 --no-symbol)
+        _create_files ${dir}
+
+        ${IS_EACH} && [ ${dir} != '.' ] && {
+            num=$(echo -n ${dir} | sed 's:[^/]::g' | wc -c)
+            for i in $(seq ${num}); do
+                dir=${dir%/*}
+                _create_files ${dir}
+            done
+        }
     done
 }
 
@@ -145,6 +161,9 @@ function _analyse_args_and_options() {
             --*)
                 if [[ "$1" =~ 'cold-run' ]]; then
                     IS_COLD_RUN='true'
+                fi
+                if [[ "$1" =~ 'each' ]]; then
+                    IS_EACH='true'
                 fi
                 shift
                 ;;
