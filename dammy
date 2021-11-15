@@ -111,7 +111,7 @@ function _main() {
 
 # -------------------------------------------------------------
 
-function _analyse_args_and_options() {
+function _analyze_args_and_options() {
     while (( $# > 0 )); do
         case $1 in
             -h | --help)
@@ -201,7 +201,7 @@ function _analyse_args_and_options() {
     done
 }
 
-function _set_static_var() {
+function _set_global_var() {
     : ${ARG_VALUES:=.}
     for i in ${ARG_VALUES[@]}; do
         [ ${i} = '/' ] && DIRS+=(' /') && continue
@@ -209,7 +209,7 @@ function _set_static_var() {
     done
 }
 
-function _verify_static_var() {
+function _verify_global_var() {
     _verify_output_dirs
 }
 
@@ -230,8 +230,8 @@ function _verify_output_dirs() {
 # -------------------------------------------------------------
 # Main Routine
 # -------------------------------------------------------------
-_analyse_args_and_options $@ && {
-    _set_static_var && _verify_static_var && {
+_analyze_args_and_options $@ && {
+    _set_global_var && _verify_global_var && {
         _verbose
         _log 'start main process..' && _log "${SEPARATER}"
         _main
