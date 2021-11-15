@@ -52,7 +52,6 @@ function _is_exist() {
 # -------------------------------------------------------------
 
 function _verbose() {
-    #_log "ARG_VALUES: ${ARG_VALUES[@]}"
     _log "DIRS: ${DIRS[@]}"
     _log "OUT_FILE_EXT: ${OUT_FILE_EXT}"
     _log "OUT_FILE_NUMBER: ${OUT_FILE_NUMBER}"
@@ -64,7 +63,6 @@ ARG_VALUES=()
 DIRS=()
 OUT_FILE_EXT='txt'
 OUT_FILE_NUMBER=1
-#OPT_B=""
 IS_COLD_RUN=false
 IS_EACH=false
 
@@ -98,7 +96,7 @@ function _main() {
     done
 
     [ ! -z ${TMP_DIR} ] && {
-        tree ${TMP_DIR} | sed "s:${TMP_DIR}:generate...:"
+        tree ${TMP_DIR} | sed "s:${TMP_DIR}:$(pwd):"
         rm -rf ${TMP_DIR}
     }
 }
@@ -196,15 +194,29 @@ function _analyse_args_and_options() {
 }
 
 function _set_static_var() {
-    [ ${#ARG_VALUES[@]} -ne 0 ] && {
-        DIRS=($(echo ${ARG_VALUES[@]} | sed 's:/$::'))
-    } || {
-        DIRS=('.')
-    }
+    : ${ARG_VALUES:=.}
+    for i in ${ARG_VALUES[@]}; do
+        [ ${i} = '/' ] && DIRS+=(' /') && continue
+        DIRS+=($(echo ${i} | sed 's:/$::'))
+    done
 }
 
 function _verify_static_var() {
-    :
+    _verify_output_dirs
+}
+
+function _verify_output_dirs() {
+    for i in ${DIRS[@]}; do
+        if [[ "${i:0:1}" = '/' ]]; then
+            _err "Directories should be specified as relative paths."
+        fi
+        if [[ ! "$(pwd)/${i}" =~ "${HOME}" ]]; then
+            _err "${i} is not under your HOME directory."
+        fi
+        if [[ "$(pwd)/${i}" =~ '../' ]]; then
+            _err "Containing ../ in output directory is restricted."
+        fi
+    done
 }
 
 # -------------------------------------------------------------
@@ -218,5 +230,5 @@ _analyse_args_and_options $@ && {
     }
 }
 
-trap "rm ${TMP_DIR}" 1 2 3 15
+trap "[ ! -z ${TMP_DIR} ] && rm ${TMP_DIR}" 1 2 3 15
 exit 0
