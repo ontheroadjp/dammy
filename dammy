@@ -72,8 +72,9 @@ function _create_files() {
     while read -r random_str; do
         _log "create: ${destination}/${random_str}.${OUT_FILE_EXT}"
         ${IS_COLD_RUN} || {
-            [ ! -e ${destination} ] && mkdir -p ${destination}
-            touch ${destination}/${random_str}.${OUT_FILE_EXT}
+            mkdir -p ${destination} && {
+                touch ${destination}/${random_str}.${OUT_FILE_EXT}
+            }
         }
     done < <(dazai -n ${OUT_FILE_NUMBER} han -d '\n' -l 8 --no-symbol)
 }
@@ -84,21 +85,11 @@ function _main() {
 
         ${IS_EACH} && [ ${dir} != '.' ] && {
             num=$(echo -n ${dir} | sed 's:[^/]::g' | wc -c)
-            for hoge in $(seq ${num}); do
+            for i in $(seq ${num}); do
                 dir=${dir%/*}
                 _create_files ${dir}
             done
         }
-
-        #_create_files ${dir}
-
-#        while read -r random_str; do
-#            echo "${dir}/${random_str}.${OUT_FILE_EXT}"
-#            ${IS_COLD_RUN} || {
-#                [ ! -e ${dir} ] && mkdir -p ${dir}
-#                touch ${dir}/${random_str}.${OUT_FILE_EXT}
-#            }
-#        done < <(dazai -n ${OUT_FILE_NUMBER} han -d '\n' -l 8 --no-symbol)
     done
 }
 
