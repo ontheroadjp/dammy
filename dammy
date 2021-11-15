@@ -82,6 +82,7 @@ function _create_files() {
 
 function _main() {
     for dir in ${DIRS[@]}; do
+
         ${IS_COLD_RUN} && {
             TMP_DIR=$(mktemp -d -t ${SCRIPT_NAME})
             dir=${TMP_DIR}/${dir}
@@ -217,5 +218,6 @@ _analyse_args_and_options $@ && {
         _main
     }
 }
-exit 0
 
+trap "rm ${TMP_DIR}" 1 2 3 15
+exit 0
