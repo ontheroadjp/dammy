@@ -52,7 +52,6 @@ function _is_exist() {
 # -------------------------------------------------------------
 
 function _verbose() {
-    #_log "ARG_VALUES: ${ARG_VALUES[@]}"
     _log "DIRS: ${DIRS[@]}"
     _log "OUT_FILE_EXT: ${OUT_FILE_EXT}"
     _log "OUT_FILE_NUMBER: ${OUT_FILE_NUMBER}"
@@ -64,7 +63,6 @@ ARG_VALUES=()
 DIRS=()
 OUT_FILE_EXT='txt'
 OUT_FILE_NUMBER=1
-#OPT_B=""
 IS_COLD_RUN=false
 IS_EACH=false
 
