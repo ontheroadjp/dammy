@@ -138,7 +138,11 @@ function _analyse_args_and_options() {
 }
 
 function _set_static_var() {
-    DIRS=($(echo ${ARG_VALUES[@]:=.} | sed 's:/$::'))
+    [ ${#ARG_VALUES[@]} -ne 0 ] && {
+        DIRS=($(echo ${ARG_VALUES[@]} | sed 's:/$::'))
+    } || {
+        DIRS=('.')
+    }
 }
 
 function _verify_static_var() {
