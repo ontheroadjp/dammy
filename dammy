@@ -19,8 +19,8 @@ function _usage() {
 #    echo "  -a, --long-a ARG               Option which must have argument"
 #    echo "  -b, --long-b [ARG]             Either with or without argument is possible"
     echo "  -n, --number                   Specify the number of files to create"
-    echo "  -w, --whitespace               Contain whitespace characters"
     echo "  -e, --ext                      Specify the extension of the file to be created"
+    echo "      --with-whitespace          Contain whitespace characters"
     echo "      --no-symbol                Contain symbol characters"
     echo "      --each                     Create a file in the specified intermediate directory"
     echo "      --cold-run                 Run script as test running"
@@ -192,12 +192,6 @@ function _analyze_args_and_options() {
 #                set -u
 #                ;;
 
-            # no argument
-            -w | --whitespace)
-                WITH_WHITESPACE=true
-                shift 1
-                ;;
-
 #            # no argument
 #            -s | --symbol)
 #                IS_NO_SYMBOL=true
@@ -218,6 +212,9 @@ function _analyze_args_and_options() {
                 fi
                 if [[ "$1" =~ 'each' ]]; then
                     IS_EACH='true'
+                fi
+                if [[ "$1" =~ 'with-whitespace' ]]; then
+                    WITH_WHITESPACE='true'
                 fi
                 if [[ "$1" =~ 'no-symbol' ]]; then
                     IS_NO_SYMBOL='true'
