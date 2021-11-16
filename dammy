@@ -21,6 +21,7 @@ function _usage() {
     echo "  -n, --number                   Specify the number of files to create"
     echo "  -w, --whitespace               Contain whitespace characters"
     echo "  -e, --ext                      Specify the extension of the file to be created"
+    echo "      --no-symbol                Contain symbol characters"
     echo "      --each                     Create a file in the specified intermediate directory"
     echo "      --cold-run                 Run script as test running"
     echo "      --verbose                  Print various logging information"
@@ -56,7 +57,8 @@ function _verbose() {
     _log "DIRS: ${DIRS[@]}"
     _log "OUT_FILE_EXT: ${OUT_FILE_EXT}"
     _log "OUT_FILE_NUMBER: ${OUT_FILE_NUMBER}"
-    _log "WITH_SPACE: ${WITH_SPACE}"
+    _log "WITH_WHITESPACE: ${WITH_WHITESPACE}"
+    _log "IS_NO_SYMBOL: ${IS_NO_SYMBOL}"
     _log "IS_EACH: ${IS_EACH}"
     _log "IS_COLD_RUN: ${IS_COLD_RUN}"
     _log "${SEPARATER}"
@@ -66,7 +68,8 @@ ARG_VALUES=()
 DIRS=()
 OUT_FILE_EXT='txt'
 OUT_FILE_NUMBER=1
-WITH_SPACE=false
+WITH_WHITESPACE=false
+IS_NO_SYMBOL=false
 IS_EACH=false
 IS_COLD_RUN=false
 
@@ -83,23 +86,24 @@ function _create_files() {
 #        }
 #    done < <(dazai -n ${OUT_FILE_NUMBER} han -d '\n' -l 8 --no-symbol)
 
+    set -f
     for i in $(seq ${OUT_FILE_NUMBER}); do
         local seed='0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
-        #seed+=':;<=>?@[\]^_`'
+        ${IS_NO_SYMBOL} || seed+="._-~%!$&'\()*+,;=:@"
 
-
-        ${WITH_SPACE} && local char_count=5 || local char_count=10
+        ${WITH_WHITESPACE} && local char_count=5 || local char_count=10
         local random_str=$(echo ${seed} \
                             | fold -w 1 \
                             | shuf -n ${char_count} \
                             | tr '\n' ' ')
-        ${WITH_SPACE} || random_str=$(echo ${random_str} | sed 's/ //g')
+        ${WITH_WHITESPACE} || random_str=$(echo ${random_str} | sed 's/ //g')
 
         mkdir -p "${destination}" && {
             touch "${destination}/${random_str}.${OUT_FILE_EXT}"
             ${IS_COLD_RUN} || _log "created: ${destination}/${random_str}.${OUT_FILE_EXT}"
         }
     done
+    set +f
 }
 
 function _main() {
@@ -190,15 +194,15 @@ function _analyze_args_and_options() {
 
             # no argument
             -w | --whitespace)
-                WITH_SPACE=true
+                WITH_WHITESPACE=true
                 shift 1
                 ;;
 
-            # no argument
-            -s | --symbol)
-                WITH_SYMBOL=true
-                shift 1
-                ;;
+#            # no argument
+#            -s | --symbol)
+#                IS_NO_SYMBOL=true
+#                shift 1
+#                ;;
 
             # after this all args include '-xx', will treat arg value
             -- | -)
@@ -214,6 +218,9 @@ function _analyze_args_and_options() {
                 fi
                 if [[ "$1" =~ 'each' ]]; then
                     IS_EACH='true'
+                fi
+                if [[ "$1" =~ 'no-symbol' ]]; then
+                    IS_NO_SYMBOL='true'
                 fi
                 shift
                 ;;
