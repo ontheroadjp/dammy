@@ -16,8 +16,6 @@ function _usage() {
     echo "Options:"
     echo "  -h, --help                     Show help"
     echo "  -v, --version                  Show script version"
-#    echo "  -a, --long-a ARG               Option which must have argument"
-#    echo "  -b, --long-b [ARG]             Either with or without argument is possible"
     echo "  -n, --number                   Specify the number of files to create"
     echo "  -e, --ext                      Specify the extension of the file to be created"
     echo "      --each                     Create a file in the specified intermediate directory"
@@ -72,16 +70,8 @@ TMP_DIR=''
 function _create_files() {
     local destination=$1
 
-#    while read -r random_str; do
-#        mkdir -p ${destination} && {
-#            touch ${destination}/${random_str}.${OUT_FILE_EXT}
-#            ${IS_COLD_RUN} || _log "created: ${destination}/${random_str}.${OUT_FILE_EXT}"
-#        }
-#    done < <(dazai -n ${OUT_FILE_NUMBER} han -d '\n' -l 8 --no-symbol)
-
     for i in $(seq ${OUT_FILE_NUMBER}); do
         local seed='0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
-        #seed+=':;<=>?@[\]^_`'
 
         local random_str=$(echo ${seed} \
                             | fold -w 1 \
@@ -170,23 +160,6 @@ function _analyze_args_and_options() {
                 shift 2
                 ;;
 
-#            # Either with or without argument is possible
-#            -b | --long-b)
-#                set +u
-#                if [[ -z "$2" ]] || [[ "$2" =~ ^-+ ]]; then
-#                    shift
-#                else
-#                    OPT_B=$2
-#                    shift 2
-#                fi
-#                set -u
-#                ;;
-
-#            # no argument
-#            -c | --long-c)
-#                shift 1
-#                ;;
-
             # after this all args include '-xx', will treat arg value
             -- | -)
                 shift 1
@@ -204,14 +177,6 @@ function _analyze_args_and_options() {
                 fi
                 shift
                 ;;
-
-#            # for true or false flags, no argument
-#            -*)
-#                if [[ "$1" =~ 'p' ]]; then
-#                    IS_FLAG_P='true'
-#                fi
-#                shift
-#                ;;
 
             # arguments
             *)
