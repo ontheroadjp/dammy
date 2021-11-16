@@ -5,9 +5,6 @@ This script generates dammy file.
 
 ## Getting Started
 
-This script require dazai script.
-see: [ontheroadjp/dazai](https://github.com/ontheroadjp/dazai.git)
-
 
 ```bash
 git clone ontheroadjp/dammy
