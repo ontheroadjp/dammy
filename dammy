@@ -6,7 +6,7 @@ SCRIPT_FILE_NAME=$(basename $0)
 SCRIPT_NAME=${SCRIPT_FILE_NAME%.*}
 SELF=$(cd $(dirname $0); pwd)
 LOGGING=false
-VERSION="1.1.5"
+VERSION="1.2.0"
 SEPARATER='---------------------------'
 
 function _usage() {
@@ -14,7 +14,6 @@ function _usage() {
     echo "  This script generate various files and directories."
     echo
     echo "Options:"
-
     echo "  -h, --help                     Show help"
     echo "  -v, --version                  Show script version"
     echo "  -n, --number                   Specify the number of files to create"
@@ -67,28 +66,34 @@ IS_EACH=false
 
 TMP_DIR=''
 
-# $1: dir
+# $1: output directory
 function _create_files() {
     local destination=$1
     while read -r random_str; do
         mkdir -p ${destination} && {
             touch ${destination}/${random_str}.${OUT_FILE_EXT}
-            _log "created: ${destination}/${random_str}.${OUT_FILE_EXT}"
+            ${IS_COLD_RUN} || _log "
+                        created: ${destination}/${random_str}.${OUT_FILE_EXT}"
         }
     done < <(dazai -n ${OUT_FILE_NUMBER} han -d '\n' -l 8 --no-symbol)
 }
 
 function _main() {
-    for dir in ${DIRS[@]}; do
+    ${IS_COLD_RUN} && TMP_DIR=$(mktemp -d -t ${SCRIPT_NAME})
+    trap "[ ! -z ${TMP_DIR} ] && rm ${TMP_DIR}" 1 2 3 15
 
-        ${IS_COLD_RUN} && {
-            TMP_DIR=$(mktemp -d -t ${SCRIPT_NAME})
-            dir=${TMP_DIR}/${dir}
-        }
+    # create file / directories
+    for dir in ${DIRS[@]}; do
+        ${IS_COLD_RUN} && dir=${TMP_DIR}/${dir}
         _create_files ${dir}
 
+        # for --each option
         ${IS_EACH} && [ ${dir} != '.' ] && {
+
+            # Determine the depth of the directory hierarchy by the number of '/'.
             num=$(echo -n ${dir} | sed "s:${TMP_DIR}/::" | sed 's:[^/]::g' | wc -c)
+            [ ${num} -eq 0 ] && continue
+
             for i in $(seq ${num}); do
                 dir=${dir%/*}
                 _create_files ${dir}
@@ -96,15 +101,16 @@ function _main() {
         }
     done
 
+    # post process of the --cold-run option
     [ ! -z ${TMP_DIR} ] && {
-        tree ${TMP_DIR} | sed "s:${TMP_DIR}:generate...:"
+        tree ${TMP_DIR} | sed "s:${TMP_DIR}:$(pwd):"
         rm -rf ${TMP_DIR}
     }
 }
 
 # -------------------------------------------------------------
 
-function _analyse_args_and_options() {
+function _analyze_args_and_options() {
     while (( $# > 0 )); do
         case $1 in
             -h | --help)
@@ -169,28 +175,41 @@ function _analyse_args_and_options() {
     done
 }
 
-function _set_static_var() {
-    [ ${#ARG_VALUES[@]} -ne 0 ] && {
-        DIRS=($(echo ${ARG_VALUES[@]} | sed 's:/$::'))
-    } || {
-        DIRS=('.')
-    }
+function _set_global_var() {
+    : ${ARG_VALUES:=.}
+    for i in ${ARG_VALUES[@]}; do
+        [ ${i} = '/' ] && DIRS+=(' /') && continue
+        DIRS+=($(echo ${i} | sed 's:/$::'))
+    done
 }
 
-function _verify_static_var() {
-    :
+function _verify_global_var() {
+    _verify_output_dirs
+}
+
+function _verify_output_dirs() {
+    for i in ${DIRS[@]}; do
+        if [[ "${i:0:1}" = '/' ]]; then
+            _err "Directories should be specified as relative paths."
+        fi
+        if [[ ! "$(pwd)/${i}" =~ "${HOME}" ]]; then
+            _err "${i} is not under your HOME directory."
+        fi
+        if [[ "$(pwd)/${i}" =~ '../' ]]; then
+            _err "Containing ../ in output directory is restricted."
+        fi
+    done
 }
 
 # -------------------------------------------------------------
 # Main Routine
 # -------------------------------------------------------------
-_analyse_args_and_options $@ && {
-    _set_static_var && _verify_static_var && {
+_analyze_args_and_options $@ && {
+    _set_global_var && _verify_global_var && {
         _verbose
         _log 'start main process..' && _log "${SEPARATER}"
         _main
     }
 }
 
-trap "rm ${TMP_DIR}" 1 2 3 15
 exit 0
