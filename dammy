@@ -80,7 +80,7 @@ function _create_files() {
 
 function _main() {
     ${IS_COLD_RUN} && TMP_DIR=$(mktemp -d -t ${SCRIPT_NAME})
-    trap "[ ! -z ${TMP_DIR} ] && rm ${TMP_DIR}" 1 2 3 15
+    trap "[ -e ${TMP_DIR} ] && rm -rf ${TMP_DIR}" 1 2 3 15
 
     # create file / directories
     for dir in ${DIRS[@]}; do
