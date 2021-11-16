@@ -6,7 +6,7 @@ SCRIPT_FILE_NAME=$(basename $0)
 SCRIPT_NAME=${SCRIPT_FILE_NAME%.*}
 SELF=$(cd $(dirname $0); pwd)
 LOGGING=false
-VERSION="1.2.0"
+VERSION="1.3.0"
 SEPARATER='---------------------------'
 
 function _usage() {
@@ -18,6 +18,8 @@ function _usage() {
     echo "  -v, --version                  Show script version"
     echo "  -n, --number                   Specify the number of files to create"
     echo "  -e, --ext                      Specify the extension of the file to be created"
+    echo "      --with-whitespace          Contain whitespace characters"
+    echo "      --no-symbol                Contain symbol characters"
     echo "      --each                     Create a file in the specified intermediate directory"
     echo "      --cold-run                 Run script as test running"
     echo "      --verbose                  Print various logging information"
@@ -36,7 +38,7 @@ function _log() {
 }
 
 function _err() {
-    echo "[err] $1" && exit 1
+    echo "[ERR] $1" && exit 1
 }
 
 function _args_count() {
@@ -53,6 +55,9 @@ function _verbose() {
     _log "DIRS: ${DIRS[@]}"
     _log "OUT_FILE_EXT: ${OUT_FILE_EXT}"
     _log "OUT_FILE_NUMBER: ${OUT_FILE_NUMBER}"
+    _log "WITH_WHITESPACE: ${WITH_WHITESPACE}"
+    _log "IS_NO_SYMBOL: ${IS_NO_SYMBOL}"
+    _log "IS_EACH: ${IS_EACH}"
     _log "IS_COLD_RUN: ${IS_COLD_RUN}"
     _log "${SEPARATER}"
 }
@@ -61,8 +66,10 @@ ARG_VALUES=()
 DIRS=()
 OUT_FILE_EXT='txt'
 OUT_FILE_NUMBER=1
-IS_COLD_RUN=false
+WITH_WHITESPACE=false
+IS_NO_SYMBOL=false
 IS_EACH=false
+IS_COLD_RUN=false
 
 TMP_DIR=''
 
@@ -70,20 +77,24 @@ TMP_DIR=''
 function _create_files() {
     local destination=$1
 
+    set -f
     for i in $(seq ${OUT_FILE_NUMBER}); do
         local seed='0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
+        ${IS_NO_SYMBOL} || seed+="._-~%!$&'\()*+,;=:@"
 
+        ${WITH_WHITESPACE} && local char_count=5 || local char_count=10
         local random_str=$(echo ${seed} \
                             | fold -w 1 \
-                            | shuf -n 10 \
+                            | shuf -n ${char_count} \
                             | tr '\n' ' ')
-        random_str=$(echo ${random_str} | sed 's/ //g')
+        ${WITH_WHITESPACE} || random_str=$(echo ${random_str} | sed 's/ //g')
 
         mkdir -p "${destination}" && {
             touch "${destination}/${random_str}.${OUT_FILE_EXT}"
             ${IS_COLD_RUN} || _log "created: ${destination}/${random_str}.${OUT_FILE_EXT}"
         }
     done
+    set +f
 }
 
 function _main() {
@@ -174,6 +185,12 @@ function _analyze_args_and_options() {
                 fi
                 if [[ "$1" =~ 'each' ]]; then
                     IS_EACH='true'
+                fi
+                if [[ "$1" =~ 'with-whitespace' ]]; then
+                    WITH_WHITESPACE='true'
+                fi
+                if [[ "$1" =~ 'no-symbol' ]]; then
+                    IS_NO_SYMBOL='true'
                 fi
                 shift
                 ;;
