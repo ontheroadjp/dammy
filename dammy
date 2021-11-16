@@ -40,7 +40,7 @@ function _log() {
 }
 
 function _err() {
-    echo "[err] $1" && exit 1
+    echo "[ERR] $1" && exit 1
 }
 
 function _args_count() {

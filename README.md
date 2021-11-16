@@ -93,7 +93,7 @@ If you add the ``--cold-run`` option, the output will be displayed in a tree, so
 When the ``--cold-run`` option is specified, the actual output is not performed.
 
 ```bash
-$ dammy hoge foo/bar piyo -n 3 --each --cold-run                                                                                           
+$ dammy hoge foo/bar piyo -n 3 --each --cold-run
 .
 ├── foo
 │   ├── JaOFPXtT.txt
@@ -121,7 +121,9 @@ Options:
   -h, --help                     Show help
   -v, --version                  Show script version
   -n, --number                   Specify the number of files to create
+  -w, --whitespace               Contain whitespace characters
   -e, --ext                      Specify the extension of the file to be created
+      --no-symbol                Contain symbol characters
       --each                     Create a file in the specified intermediate directory
       --cold-run                 Run script as test running
       --verbose                  Print various logging information
