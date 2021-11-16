@@ -6,7 +6,7 @@ SCRIPT_FILE_NAME=$(basename $0)
 SCRIPT_NAME=${SCRIPT_FILE_NAME%.*}
 SELF=$(cd $(dirname $0); pwd)
 LOGGING=false
-VERSION="1.1.5"
+VERSION="1.2.0"
 SEPARATER='---------------------------'
 
 function _usage() {
@@ -82,6 +82,7 @@ function _create_files() {
 
 function _main() {
     ${IS_COLD_RUN} && TMP_DIR=$(mktemp -d -t ${SCRIPT_NAME})
+    trap "[ ! -z ${TMP_DIR} ] && rm ${TMP_DIR}" 1 2 3 15
 
     # create file / directories
     for dir in ${DIRS[@]}; do
@@ -238,5 +239,4 @@ _analyze_args_and_options $@ && {
     }
 }
 
-trap "[ ! -z ${TMP_DIR} ] && rm ${TMP_DIR}" 1 2 3 15
 exit 0
