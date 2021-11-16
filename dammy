@@ -69,13 +69,21 @@ TMP_DIR=''
 # $1: output directory
 function _create_files() {
     local destination=$1
-    while read -r random_str; do
-        mkdir -p ${destination} && {
-            touch ${destination}/${random_str}.${OUT_FILE_EXT}
-            ${IS_COLD_RUN} || _log "
-                        created: ${destination}/${random_str}.${OUT_FILE_EXT}"
+
+    for i in $(seq ${OUT_FILE_NUMBER}); do
+        local seed='0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
+
+        local random_str=$(echo ${seed} \
+                            | fold -w 1 \
+                            | shuf -n 10 \
+                            | tr '\n' ' ')
+        random_str=$(echo ${random_str} | sed 's/ //g')
+
+        mkdir -p "${destination}" && {
+            touch "${destination}/${random_str}.${OUT_FILE_EXT}"
+            ${IS_COLD_RUN} || _log "created: ${destination}/${random_str}.${OUT_FILE_EXT}"
         }
-    done < <(dazai -n ${OUT_FILE_NUMBER} han -d '\n' -l 8 --no-symbol)
+    done
 }
 
 function _main() {
@@ -91,7 +99,11 @@ function _main() {
         ${IS_EACH} && [ ${dir} != '.' ] && {
 
             # Determine the depth of the directory hierarchy by the number of '/'.
-            num=$(echo -n ${dir} | sed "s:${TMP_DIR}/::" | sed 's:[^/]::g' | wc -c)
+            num=$(echo -n ${dir} \
+                | sed "s:${TMP_DIR}/::" \
+                | sed 's:[^/]::g' | wc -c \
+            )
+
             [ ${num} -eq 0 ] && continue
 
             for i in $(seq ${num}); do
@@ -103,7 +115,7 @@ function _main() {
 
     # post process of the --cold-run option
     [ ! -z ${TMP_DIR} ] && {
-        tree ${TMP_DIR} | sed "s:${TMP_DIR}:$(pwd):"
+        tree ${TMP_DIR} | sed "s:${TMP_DIR}:.:"
         rm -rf ${TMP_DIR}
     }
 }
