@@ -23,85 +23,110 @@ echo 'path/to/clone/dammy-dir' >> .zshrc
 
 ## Usage
 
-If you add the ``--cold-run`` option, the output will be displayed in a tree, so you can check the output beforehand.
-
-When the ``--cold-run`` option is specified, the actual output is not performed.
-
-```bash
-$ dammy hoge foo/bar piyo -n 3 --each --cold-run                                                                                           
-/xxx/xxx/xxx/xxx/xxx
-├── 1hWu7xAY.txt
-├── 5xRs80KF.txt
-├── 8yWPaPh3.txt
-├── 9LIk6nMb.txt
-├── FNaQ609p.txt
-├── foo
-│   ├── Cj7zP93w.txt
-│   ├── bar
-│   │   ├── Egc2l8YA.txt
-│   │   ├── HEAIQfnT.txt
-│   │   └── z0WmX1Ke.txt
-│   ├── dEJkvAiy.txt
-│   └── edA1kOqA.txt
-├── hoge
-│   ├── 9Sk79651.txt
-│   ├── vCVT4iJR.txt
-│   └── y6zQb8m3.txt
-├── piyo
-│   ├── ZzsnUIvP.txt
-│   ├── qDJrGwmD.txt
-│   └── qwl5FaNj.txt
-└── sQlh1BA1.txt
-```
-
-
-
-
-
 ### Generate a dammy file in current directory
 
 ```bash
 dammy
 ```
 
+#### result
+
+```bash
+.
+└── 2dxKEcUK.txt
+```
+
 - No arguments and no options you need.
 - File extention of the dammy file generated will be '.txt' in default.
 - You are able to change file extension with ``-e`` option.
 
-### Generate a dammy file with jpg extention into test/ directory.
+### Generate three dammy files into hoge/ and foo/bar/ directory.
 
 ```bash
-dammy -e jpg test
+dammy hoge foo/bar -n 3
 ```
 
-- If there is not test directory it automatically created.
-- You can output only under the HOME directory.
+#### result
+
+```bash
+.
+├── foo
+│   └── bar
+│       ├── BoIclQfM.txt
+│       ├── Z0aA185Z.txt
+│       └── vwoYJ03u.txt
+└── hoge
+    ├── 2neoJnI6.txt
+    ├── DXgrDajK.txt
+    └── m5rNjpY4.txt
+```
+
+- If there is not ``hoge/`` or ``foo/bar/`` directory it automatically created.
+- You can output only under the ``HOME`` directory.
 - Specify the output destination as a relative path.
 - In the relative path of the output destination ``../`` cannot be used.
 
-### Generate five dammy files into test/ directory.
+
+
+### The brace expansion is going to be work well.
 
 ```bash
-dammy test -n 5
+dammy -n 3 hoge/{foo,bar}
 ```
 
-### Generate dammy file into multiple directories
+#### result
 
 ```bash
-dammy test/tokyo_{00..02}
+.
+└── hoge
+    ├── bar
+    │   ├── RSiLTWlk.txt
+    │   ├── h6L9J9cA.txt
+    │   └── s0cpZvdE.txt
+    └── foo
+        ├── fCAEjWIS.txt
+        ├── uj9hoiTt.txt
+        └── zwUpNxKz.txt
 ```
 
-- The brace expansion is going to be work well.
+## Cold Run
 
+If you add the ``--cold-run`` option, the output will be displayed in a tree, so you can check the output beforehand.
 
+When the ``--cold-run`` option is specified, the actual output is not performed.
+
+```bash
+$ dammy hoge foo/bar piyo -n 3 --each --cold-run                                                                                           
+.
+├── foo
+│   ├── JaOFPXtT.txt
+│   ├── bar
+│   │   ├── ChWqBDpc.txt
+│   │   ├── FIqFQg2S.txt
+│   │   └── PWL6yHyF.txt
+│   ├── tBy4zN5v.txt
+│   └── ystLA34m.txt
+├── hoge
+│   ├── 42Ch6Iev.txt
+│   ├── Iq0UpSmA.txt
+│   └── ibXAsoiP.txt
+└── piyo
+    ├── 0wb1VQy8.txt
+    ├── GtaPgR4g.txt
+    └── lfz9rUoX.txt
+
+4 directories, 12 files
+```
 
 ## Options
 ```bash
 Options:
-  -h, --help                     Show help.
-  -v, --version                  Show script version.
-  -n, --number                   Specify the number of files to create.
-  -e, --ext                      Specify the extension of the file to be created.
+  -h, --help                     Show help
+  -v, --version                  Show script version
+  -n, --number                   Specify the number of files to create
+  -e, --ext                      Specify the extension of the file to be created
+      --each                     Create a file in the specified intermediate directory
+      --cold-run                 Run script as test running
       --verbose                  Print various logging information
 ```
 
