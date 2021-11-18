@@ -119,10 +119,21 @@ function _main() {
         ${IS_EACH} && [ ${dir} != '.' ] && {
 
             # Determine the depth of the directory hierarchy by the number of '/'.
-            num=$(echo -n ${dir} \
-                | sed "s:${TMP_DIR}/::" \
-                | sed 's:[^/]::g' | wc -c \
-            )
+            ${IS_COLD_RUN} && {
+                num=$(echo -n ${dir} \
+                    | sed "s:${TMP_DIR}/::" \
+                    | sed 's:[^/]::g' | wc -c \
+                )
+            } || {
+                num=$(echo -n ${dir} \
+                    | sed 's:[^/]::g' | wc -c \
+                )
+            }
+
+            echo "dir: ${dir}"
+            echo "TMP_DIR: ${TMP_DIR}"
+            echo "sed: $(echo ${dir} | sed "s:${TMP_DIR}/::")"
+            echo "num: ${num}"
 
             [ ${num} -eq 0 ] && continue
 
