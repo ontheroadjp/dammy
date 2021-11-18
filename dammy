@@ -134,10 +134,10 @@ function _main() {
     done
 
     # post process of the --cold-run option
-    [ ! -z ${TMP_DIR} ] && {
+    if [ ! -z ${TMP_DIR} ]; then
         tree ${TMP_DIR} | sed "s:${TMP_DIR}:.:"
         rm -rf ${TMP_DIR}
-    }
+    fi
 }
 
 # -------------------------------------------------------------
