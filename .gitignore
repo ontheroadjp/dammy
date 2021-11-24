@@ -1,5 +1,10 @@
 test/
 
+# vuepress
+node_modules
+.temp
+.cache
+
 # General
 .DS_Store
 .AppleDouble
