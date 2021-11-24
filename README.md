@@ -1,7 +1,7 @@
 # dammy
 This script generates dammy file.
 
-
+[![docs](https://github.com/ontheroadjp/dammy/actions/workflows/docs.yml/badge.svg)](https://github.com/ontheroadjp/dammy/actions/workflows/docs.yml)
 
 ## Getting Started
 
