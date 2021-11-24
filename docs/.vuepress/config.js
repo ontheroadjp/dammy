@@ -26,7 +26,7 @@ module.exports = {
         ['meta', { name: 'twitter:site', content: '@te_ontheroad_jp' }],
         ['meta', { name: 'twitter:title', content: 'dammy' }],
         ['meta', { name: 'twitter:description', content: 'Simple and Useful Shellscript' }],
-        ['meta', { name: 'twitter:image', content: '/dammy/images/hero.png' }],
+        ['meta', { name: 'twitter:image', content: '/dammy/images/main.jpg' }],
     ],
     themeConfig: {
         logo: '/images/hero.png',
