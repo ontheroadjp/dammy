@@ -121,11 +121,6 @@ function _main() {
                 )
             }
 
-            echo "dir: ${dir}"
-            echo "TMP_DIR: ${TMP_DIR}"
-            echo "sed: $(echo ${dir} | sed "s:${TMP_DIR}/::")"
-            echo "num: ${num}"
-
             [ ${num} -eq 0 ] && continue
 
             for i in $(seq ${num}); do
