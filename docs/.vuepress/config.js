@@ -1,6 +1,6 @@
 module.exports = {
     lang: 'ja-JP',
-    title: 'dammy',
+    title: 'dammy - simple and useful shellscript',
     description: 'Simple and Usuful shellscript',
     base: '/dammy/',
     locales: {
@@ -15,6 +15,14 @@ module.exports = {
             description: 'Simple and Usuful shellscript',
         },
     },
+    head: [
+        ['link', { rel: 'icon', type: 'image/png', href: '/dammy/images/hero.png' }],
+        ['meta', { name: 'og:url', content: 'https://ontheroadjp.github.com/dammy/' }],
+        ['meta', { name: 'og:type', content: 'website' }],
+        ['meta', { name: 'og:title', content: 'dammy - simple and useful shellscript' }],
+        ['meta', { name: 'og:description', content: 'Simple and Useful Shellscript' }],
+        ['meta', { name: 'og:image', content: '/dammy/images/hero.png' }]
+    ],
     themeConfig: {
         logo: '/images/hero.png',
         repo: 'ontheroadjp/dammy',
