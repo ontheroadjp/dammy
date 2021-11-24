@@ -21,7 +21,7 @@ module.exports = {
         ['meta', { name: 'og:type', content: 'website' }],
         ['meta', { name: 'og:title', content: 'dammy - simple and useful shellscript' }],
         ['meta', { name: 'og:description', content: 'Simple and Useful Shellscript' }],
-        ['meta', { name: 'og:image', content: '/dammy/images/hero.png' }]
+        ['meta', { name: 'og:image', content: '/dammy/images/main.jpg' }]
     ],
     themeConfig: {
         logo: '/images/hero.png',
