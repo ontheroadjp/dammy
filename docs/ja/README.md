@@ -16,6 +16,7 @@ features:
     details: テスト用のディレクトリツリーを使い回す必要はありません。
   - title: 簡単に使える
     details: 何度でも気軽にディレクトリツリーのスクラップ&ビルドが可能です。
-footer: MIT Licensed | Copyright © 2021-present ontheroadjp
+footerHtml: true
+footer: '<p><a style="padding: 20px; border-radius: 5px; background-color: rgb(230, 161, 84); color: white; border: 1px solid" href="https://www.buymeacoffee.com/ontheroadjp" target="_blank">Buy me a ☕️ if you like my projects (^^)/</a><br><br>MIT Licensed | Copyright © 2021-present ontheroadjp</p>'
 ---
 

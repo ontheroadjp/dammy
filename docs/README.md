@@ -16,6 +16,7 @@ features:
     details: From now on, there is no need to use the directory tree for testing.
   - title: Ease to Use
     details: You can easily scrap and build your directory tree as many times as you like.
-footer: MIT Licensed | Copyright © 2021-present ontheroadjp
+footerHtml: true
+footer: '<p><a style="padding: 20px; border-radius: 5px; background-color: rgb(230, 161, 84); color: white; border: 1px solid" href="https://www.buymeacoffee.com/ontheroadjp" target="_blank">Buy me a ☕️ if you like my projects :)</a><br><br>MIT Licensed | Copyright © 2021-present ontheroadjp</p>'
 ---
 
