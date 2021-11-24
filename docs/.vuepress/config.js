@@ -28,6 +28,13 @@ module.exports = {
         ['meta', { name: 'twitter:description', content: 'Simple and Useful Shellscript' }],
         ['meta', { name: 'twitter:image', content: 'https://ontheroadjp.github.io/dammy/images/main.jpg' }],
     ],
+    plugins: [
+        [
+            '@vuepress/plugin-google-analytics', {
+                id: 'G-PC1Y4G342B',
+            },
+        ],
+    ],
     themeConfig: {
         logo: '/images/hero.png',
         repo: 'ontheroadjp/dammy',
