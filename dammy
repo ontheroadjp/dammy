@@ -85,7 +85,6 @@ function _create_files() {
         local seed='0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
         ${IS_NO_SYMBOL} || seed+="._-~%!$&'\()*+,;=:@"
         ${ZENKAKU} && {
-            echo 'zen'
             seed+='あかさたなはまやらわいきしちにうくすつぬへめえれえわをん'
             ${IS_NO_SYMBOL} || seed+="。＿ー〜％！＄＆’￥（）＊＋、；＝：＠"
         }
