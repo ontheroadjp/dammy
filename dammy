@@ -20,8 +20,9 @@ function _usage() {
 #    echo "  -b, --long-b [ARG]             Either with or without argument is possible"
     echo "  -n, --number                   Specify the number of files to create"
     echo "  -e, --ext                      Specify the extension of the file to be created"
-    echo "      --with-whitespace          Contain whitespace characters"
-    echo "      --no-symbol                Contain symbol characters"
+    echo "  -z, --zenkaku                  Contain 2-bits characters"
+    echo "  -w, --with-whitespace          Contain whitespace characters"
+    echo "      --no-symbol                No containg symbol characters"
     echo "      --each                     Create a file in the specified intermediate directory"
     echo "      --cold-run                 Run script as test running"
     echo "      --verbose                  Print various logging information"
@@ -58,6 +59,7 @@ function _verbose() {
     _log "OUT_FILE_EXT: ${OUT_FILE_EXT}"
     _log "OUT_FILE_NUMBER: ${OUT_FILE_NUMBER}"
     _log "WITH_WHITESPACE: ${WITH_WHITESPACE}"
+    _log "ZENKAKU: ${ZENKAKU}"
     _log "IS_NO_SYMBOL: ${IS_NO_SYMBOL}"
     _log "IS_EACH: ${IS_EACH}"
     _log "IS_COLD_RUN: ${IS_COLD_RUN}"
@@ -69,6 +71,7 @@ DIRS=()
 OUT_FILE_EXT='txt'
 OUT_FILE_NUMBER=1
 WITH_WHITESPACE=false
+ZENKAKU=false
 IS_NO_SYMBOL=false
 IS_EACH=false
 IS_COLD_RUN=false
@@ -90,6 +93,11 @@ function _create_files() {
     for i in $(seq ${OUT_FILE_NUMBER}); do
         local seed='0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
         ${IS_NO_SYMBOL} || seed+="._-~%!$&'\()*+,;=:@"
+        ${ZENKAKU} && {
+            echo 'zen'
+            seed+='あかさたなはまやらわいきしちにうくすつぬへめえれえわをん'
+            ${IS_NO_SYMBOL} || seed+="。＿ー〜％！＄＆’￥（）＊＋、；＝：＠"
+        }
 
         ${WITH_WHITESPACE} && local char_count=5 || local char_count=10
         local random_str=$(echo ${seed} \
@@ -190,6 +198,7 @@ function _analyze_args_and_options() {
 #            -b | --long-b)
 #                set +u
 #                if [[ -z "$2" ]] || [[ "$2" =~ ^-+ ]]; then
+#                    OPT_B=$2
 #                    shift
 #                else
 #                    OPT_B=$2
@@ -212,15 +221,27 @@ function _analyze_args_and_options() {
                 ;;
 
             # for true or false flags, no argument
+            -*)
+                if [[ "$1" =~ 'w' ]]; then
+                    WITH_WHITESPACE='true'
+                fi
+                if [[ "$1" =~ 'z' ]]; then
+                    ZENKAKU='true'
+                fi
+                shift
+                ;;
             --*)
+                if [[ "$1" =~ 'with-whitespace' ]]; then
+                    WITH_WHITESPACE='true'
+                fi
+                if [[ "$1" =~ 'zenkaku' ]]; then
+                    ZENKAKU='true'
+                fi
                 if [[ "$1" =~ 'cold-run' ]]; then
                     IS_COLD_RUN='true'
                 fi
                 if [[ "$1" =~ 'each' ]]; then
                     IS_EACH='true'
-                fi
-                if [[ "$1" =~ 'with-whitespace' ]]; then
-                    WITH_WHITESPACE='true'
                 fi
                 if [[ "$1" =~ 'no-symbol' ]]; then
                     IS_NO_SYMBOL='true'
