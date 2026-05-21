@@ -1,31 +1,30 @@
 # Overview
 
-## What's dammy ?
-This shell script builds a directory tree. With this script, there is no need to build a directory tree by using commands such as mkdir or touch.
+## What is dammy?
 
-In system development where files and directories are read from directories, this can greatly reduce the time and effort required to build a directory tree for testing.
+**dammy** is a Bash script that instantly generates dummy files and directory trees for testing and development purposes.
 
-## Main Features
-- Create multi-level directories
-- Create files in the created directory.
-- The files created can contain symbols and spaces.
+Setting up test fixtures by hand — running `mkdir`, `touch`, and other commands one by one — is tedious and error-prone. dammy eliminates that friction with a single command.
+
+### What you can do
+
+- **Generate test dummy files** — Create any number of files with randomized names in one shot. Choose any file extension.
+- **Build directory hierarchies** — Create deeply nested directories automatically. No need to pre-create parent directories.
+- **Use special characters in names** — Generate files and directories whose names include symbols, whitespace, or Japanese (2-byte) characters. Useful for testing edge cases in file name handling.
+- **Generate dummy images for web development** — When an image format is specified (jpg, png, gif, etc.), dammy produces actual image files using ImageMagick. Each image is a gray canvas with the resolution printed at the center — ready to drop into mockups or front-end tests.
+- **Preview before creating** — The `--cold-run` flag shows you exactly what would be created, without touching the filesystem.
 
 ## Example
-Just run this command...
+
+Run this single command:
 
 ```bash
-dammy hoge/{foo,bar}/piyo -n 3 --each --with-whitespace
+dammy.sh hoge/{foo,bar}/piyo -n 3 --each --with-whitespace
 ```
 
-A directory tree will be constructed as shown below.
+And you get the following tree instantly:
 
-Inside the ``hoge`` directory, we create the ``foo`` directory, and under the ``foo`` directory, we create the ``piyo`` directory.
-
-In each of these directories, three files with blank/symbolic filenames are created.
-
-At the same time, using bash's brace expansion, it creates a ``bar`` directory inside the ``hoge`` directory and a ``piyo`` directory under it, and creates three files with blank/symbolic filenames in each of these directories.
-
-```bash
+```
 hoge
 ├── ) R a Y A .txt
 ├── H t 8 9 h .txt

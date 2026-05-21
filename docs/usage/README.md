@@ -1,52 +1,237 @@
 # Usage
 
-If you haven't installed it yet, please do so first.
+## Pattern 1 — The simplest usage
 
-After the installation is complete, let's try using dammy.
-
-## Generating a file
-
-When the dammy command is executed, a dummy file will be created in the directory where it was executed.
+Run `dammy.sh` with no arguments. One `.txt` file with a random name is created in the current directory.
 
 ```bash
-$ dammy
+$ dammy.sh
 $ tree
 .
 └── 0hi)_mB.wf.txt
 ```
 
-### Number of files to generate
+---
 
-The number of files to be generated can be changed with the ``-n`` option.
+## Pattern 2 — Create multiple files at once
+
+Use `-n` to create several files in one shot.
 
 ```bash
-$ dammy -n 3
+$ dammy.sh -n 5
 $ tree
 .
 ├── $qxT2+_'uW.txt
+├── Hk3mNzKs.txt
 ├── pdK:gXwu.Q.txt
-└── tl4NUT(q7b.txt
+├── tl4NUT(q7b.txt
+└── Vu8nXjBsLe.txt
 ```
 
-### Extension of the generated file
+---
 
-You can change the extension of the generated file by adding the ``-e`` option.
+## Pattern 3 — Specify the file extension
+
+Use `-e` to generate files with any extension.
 
 ```bash
-$ dammy -n 3 -e jpg
+$ dammy.sh -n 3 -e csv
 $ tree
 .
-├── ;mSu179.QE.jpg
-├── JGElYbT3d\.jpg
-└── tyP+\woXGQ.jpg
+├── ;mSu179.QE.csv
+├── JGElYbT3d\.csv
+└── tyP+\woXGQ.csv
 ```
 
-### Symbol-free file names
+---
 
-By giving the ``--no-symbol`` option, files are generated with file names that do not contain symbols.
+## Pattern 4 — Generate actual image files
+
+When you specify an image format, dammy generates real image files using ImageMagick — a gray canvas with the size printed at the center. Perfect as placeholder images for web development.
+
+Supported: `jpg` `jpeg` `png` `gif` `bmp` `tiff` `webp`
 
 ```bash
-$ dammy -n 3 --no-symbol
+$ dammy.sh -n 3 -e jpg
+$ tree
+.
+├── 100x100_1.jpg
+├── 100x100_2.jpg
+└── 100x100_3.jpg
+```
+
+### Specify the image size with `-s`
+
+```bash
+$ dammy.sh -n 4 -e png -s 320x240
+$ tree
+.
+├── 320x240_1.png
+├── 320x240_2.png
+├── 320x240_3.png
+└── 320x240_4.png
+```
+
+---
+
+## Pattern 5 — Create files inside a directory
+
+Pass a directory path as an argument. The directory is created automatically if it does not exist.
+
+```bash
+$ dammy.sh -n 3 work
+$ tree
+.
+└── work
+    ├── 9BcTRkOgLw.txt
+    ├── J(q=E.@Ma0.txt
+    └── x&bY,2s)qg.txt
+```
+
+---
+
+## Pattern 6 — Create files in multiple directories
+
+Pass multiple paths to populate several directories at once.
+
+```bash
+$ dammy.sh -n 2 assets/images assets/css assets/js
+$ tree
+.
+└── assets
+    ├── css
+    │   ├── 4Jd8wNkR.txt
+    │   └── hR2nQvLw.txt
+    ├── images
+    │   ├── 3Kp9mXtA.txt
+    │   └── uZ7bYcFe.txt
+    └── js
+        ├── aX1mBqTy.txt
+        └── sF6vUzPc.txt
+```
+
+---
+
+## Pattern 7 — Create a deeply nested directory tree
+
+Slashes create intermediate directories automatically.
+
+```bash
+$ dammy.sh -n 2 project/src/components
+$ tree
+.
+└── project
+    └── src
+        └── components
+            ├── :w9a@DmC~N.txt
+            └── Ab3Kp!mQvX.txt
+```
+
+---
+
+## Pattern 8 — Place files in every level with `--each`
+
+`--each` creates files not just in the deepest directory, but in every directory along the path.
+
+```bash
+$ dammy.sh -n 2 project/src/components --each
+$ tree
+.
+└── project
+    ├── Pq7mNzKsYo.txt
+    ├── Vu8nXjBsLe.txt
+    └── src
+        ├── &dGzWh!F2f.txt
+        ├── Hk3mNzKs.txt
+        └── components
+            ├── %\'fRw2z,h.txt
+            └── yLv*lTz\BG.txt
+```
+
+---
+
+## Pattern 9 — Use shell brace expansion
+
+Combine dammy with the shell's brace expansion to build branching trees.
+
+```bash
+$ dammy.sh -n 2 src/{components,pages,utils}
+$ tree
+.
+└── src
+    ├── components
+    │   ├── Kd4pRmTzWq.txt
+    │   └── Vu8nXjBsLe.txt
+    ├── pages
+    │   ├── 9k~MYXwoH!.txt
+    │   └── ey\%lAFx2V.txt
+    └── utils
+        ├── Ab3Kp!mQvX.txt
+        └── :w9a@DmC~N.txt
+```
+
+---
+
+## Pattern 10 — Brace expansion with `--each`
+
+Combine brace expansion and `--each` to fill every directory level in a branching tree.
+
+```bash
+$ dammy.sh -n 2 hoge/{foo,bar}/piyo --each
+$ tree
+.
+└── hoge
+    ├── ) R a Y A .txt
+    ├── H t 8 9 h .txt
+    ├── bar
+    │   ├── ! + w 2 q .txt
+    │   ├── , ) R ; c .txt
+    │   └── piyo
+    │       ├── % U 2 P L .txt
+    │       └── 5 R J j c .txt
+    └── foo
+        ├── $ A P H _ .txt
+        ├── J Z d ' a .txt
+        └── piyo
+            ├── : L w & I .txt
+            └── A e @ j & .txt
+```
+
+---
+
+## Pattern 11 — Images into multiple directories
+
+Place dummy images into several directories using brace expansion — great for building a front-end asset structure.
+
+```bash
+$ dammy.sh -n 3 -e jpg -s 800x600 images/{pc,sp,tablet}
+$ tree
+.
+└── images
+    ├── pc
+    │   ├── 800x600_1.jpg
+    │   ├── 800x600_2.jpg
+    │   └── 800x600_3.jpg
+    ├── sp
+    │   ├── 800x600_1.jpg
+    │   ├── 800x600_2.jpg
+    │   └── 800x600_3.jpg
+    └── tablet
+        ├── 800x600_1.jpg
+        ├── 800x600_2.jpg
+        └── 800x600_3.jpg
+```
+
+---
+
+## Pattern 12 — Special character file names
+
+### Symbol-free names
+
+Use `--no-symbol` to generate alphanumeric-only file names.
+
+```bash
+$ dammy.sh -n 3 --no-symbol
 $ tree
 .
 ├── Q5aocxH9uI.txt
@@ -54,13 +239,12 @@ $ tree
 └── ucmiz657Ae.txt
 ```
 
-### File names with whitespace
+### Names with spaces
 
-The ``--with-whitespace`` option is used to generate files with whitespace in the file name.
-
+Use `--with-whitespace` to include spaces — useful for testing how your app handles paths with spaces.
 
 ```bash
-$ dammy -n 3 --with-whitespace
+$ dammy.sh -n 3 --with-whitespace
 $ tree
 .
 ├── J L $ A ( .txt
@@ -68,134 +252,66 @@ $ tree
 └── V n 0 ) Z .txt
 ```
 
-## Creating a directory
+### Names with 2-byte (Japanese) characters
 
-When you pass the argument to ``dammy``, a directory will be created and a file will be created in it.
+Use `--zenkaku` to include Japanese characters — useful for testing multibyte filename handling.
 
 ```bash
-$ dammy hoge
+$ dammy.sh -n 3 --zenkaku
 $ tree
 .
-└── hoge
-    └── YQ_7eEW5bH.txt
+├── 3aしにmう.txt
+├── Xたれ9かi.txt
+└── ゆBwはZ1.txt
 ```
 
-It is not possible to generate only directories. If you want to generate only a directory, use mkdir.
+---
 
-:::TIP
-Of course, the ``-e`` and ``-n`` options can be used together.
-:::
+## Pattern 13 — Preview with `--cold-run`
 
-### Multiple Directories
-
-It is also possible to create multiple directories at the same time.
+Not sure what will be created? Add `--cold-run` to preview the output tree without touching the filesystem.
 
 ```bash
-$ dammy hoge foo bar
-$ tree
-.
-├── bar
-│   └── J(q=E.@Ma0.txt
-├── foo
-│   └── x&bY,2s)qg.txt
-└── hoge
-    └── 9BcTRkOgLw.txt
-```
-
-### Nesting
-
-Directories can be nested. There is no need to create the directories in advance.
-
-```bash
-$ dammy hoge/foo/bar
-tree
+$ dammy.sh -n 3 -e jpg hoge/{foo,bar}/piyo --each --cold-run
 .
 └── hoge
-    └── foo
-        └── bar
-            └── :w9a@DmC~N.txt
-```
-
-When the --each option is given, a file will be created in each directory.
-
-```bash
-$ dammy hoge/foo/bar --each
-$ tree
-.
-└── hoge
-    ├── foo
-    │   ├── &dGzWh!F2f.txt
-    │   └── bar
-    │       └── %\'fRw2z,h.txt
-    └── yLv*lTz\BG.txt
-```
-
-## Shell brace expansion.
-
-``dammy`` can also be combined with brace expansion of the shell.
-
-```bash
-$ dammy hoge/{foo,bar}/piyo
-$ tree
-.
-└── hoge
+    ├── 100x100_1.jpg
+    ├── 100x100_2.jpg
+    ├── 100x100_3.jpg
     ├── bar
-    │   └── piyo
-    │       └── ey\%lAFx2V.txt
+    │   ├── 100x100_1.jpg
+    │   ├── 100x100_2.jpg
+    │   ├── 100x100_3.jpg
+    │   └── piyo
+    │       ├── 100x100_1.jpg
+    │       ├── 100x100_2.jpg
+    │       └── 100x100_3.jpg
     └── foo
+        ├── 100x100_1.jpg
+        ├── 100x100_2.jpg
+        ├── 100x100_3.jpg
         └── piyo
-            └── 9k~MYXwoH!.txt
+            ├── 100x100_1.jpg
+            ├── 100x100_2.jpg
+            └── 100x100_3.jpg
 ```
 
-## cold run
+Once you are happy with the preview, remove `--cold-run` and run the same command for real.
 
-When the ``--cold-run`` option is given, no files/directories are actually created.
+---
 
-Instead, the contents of the directory tree that would be generated without the ``--cold-run`` option will be displayed.
+## Options reference
 
-If there are no problems, just remove the ``--cold-run`` option and run the dammy command.
-
-```bash
-$ dammy hoge/{foo,bar}/piyo --each -n 3 --cold-run
-.
-└── hoge
-    ├── +_60SaTUoh.txt
-    ├── COrDP*WZ2X.txt
-    ├── S:0myGYPX(.txt
-    ├── bar
-    │   ├── 9\\=o7y5):e.txt
-    │   ├── CJso1@z)ZD.txt
-    │   ├── Lg7)ruOtbH.txt
-    │   └── piyo
-    │       ├── &:u-BmLSa3.txt
-    │       ├── _j,eoIl1nZ.txt
-    │       └── gd,5xhU(!o.txt
-    ├── d6g.pTULy9.txt
-    ├── foo
-    │   ├── 0A)T=qK@Uh.txt
-    │   ├── R8*.40;B_u.txt
-    │   ├── kd$%K,)24l.txt
-    │   └── piyo
-    │       ├── (\\3p0ibK1S.txt
-    │       ├── B0dGSQxzmv.txt
-    │       └── ~L3\\SGc$X9.txt
-    ├── n(x5@_alTr.txt
-    └── nCH:qsx\\(f.txt
-
-5 directories, 18 files
-```
-
-## Options
-
-```bash
-Options:
-  -h, --help                     Show help
-  -v, --version                  Show script version
-  -n, --number                   Specify the number of files to create
-  -e, --ext                      Specify the extension of the file to be created
-      --with-whitespace          Contain whitespace characters
-      --no-symbol                Contain symbol characters
-      --each                     Create a file in the specified intermediate directory
-      --cold-run                 Run script as test running
-      --verbose                  Print various logging information
-```
+| Option | Description |
+|---|---|
+| `-h`, `--help` | Show help and exit |
+| `-v`, `--version` | Show version and exit |
+| `-n`, `--number` | Number of files to create (default: 1) |
+| `-e`, `--ext` | File extension (default: `txt`) |
+| `-s`, `--size` | Image size in `WxH` format (default: `100x100`). Image formats only. |
+| `-w`, `--with-whitespace` | Include spaces in file names |
+| `-z`, `--zenkaku` | Include 2-byte (Japanese) characters in file names |
+| `--no-symbol` | Exclude symbol characters from file names |
+| `--each` | Create files in every intermediate directory |
+| `--cold-run` | Preview output without creating files |
+| `--verbose` | Print debug information |

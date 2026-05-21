@@ -115,15 +115,73 @@ $ dammy hoge foo/bar piyo -n 3 --each --cold-run
 4 directories, 12 files
 ```
 
+### Generate dummy image files
+
+For image formats (`jpg`, `jpeg`, `png`, `gif`, `bmp`, `tiff`, `webp`), actual image files are generated instead of empty files. Each image is filled with gray and has the size label drawn in the center.
+
+> **Requirement:** [ImageMagick](https://imagemagick.org/) must be installed.
+> ```bash
+> # macOS
+> brew install imagemagick
+> # Ubuntu
+> sudo apt install imagemagick
+> ```
+
+#### Generate three 100x100 JPEGs (default size)
+
+```bash
+dammy -n 3 -e jpg
+```
+
+```
+.
+├── 3Kp9mXtA.jpg
+├── hR2nQvLw.jpg
+└── uZ7bYcFe.jpg
+```
+
+#### Generate three 200x150 PNGs with `-s` option
+
+```bash
+dammy -n 3 -e png -s 200x150
+```
+
+```
+.
+├── 4Jd8wNkR.png
+├── aX1mBqTy.png
+└── sF6vUzPc.png
+```
+
+#### Generate images into subdirectories
+
+```bash
+dammy -n 2 -e jpg -s 300x200 images/{thumbnails,originals}
+```
+
+```
+.
+└── images
+    ├── originals
+    │   ├── bH3nKpQm.jpg
+    │   └── tY7wVxLa.jpg
+    └── thumbnails
+        ├── cR5mZdFs.jpg
+        └── uN2kXjWo.jpg
+```
+
 ## Options
 ```bash
 Options:
   -h, --help                     Show help
   -v, --version                  Show script version
   -n, --number                   Specify the number of files to create
-  -w, --whitespace               Contain whitespace characters
   -e, --ext                      Specify the extension of the file to be created
-      --no-symbol                Contain symbol characters
+  -s, --size                     Specify the image size e.g. 200x150 (default: 100x100)
+                                 Only valid for image formats: jpg jpeg png gif bmp tiff webp
+  -w, --whitespace               Contain whitespace characters
+  -z, --zenkaku                  Contain 2-bits characters
+      --no-symbol                No containing symbol characters
       --each                     Create a file in the specified intermediate directory
       --cold-run                 Run script as test running
       --verbose                  Print various logging information

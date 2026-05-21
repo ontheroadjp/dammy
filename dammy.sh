@@ -4,10 +4,34 @@ set -Ceu
 
 SCRIPT_FILE_NAME=$(basename $0)
 SCRIPT_NAME=${SCRIPT_FILE_NAME%.*}
-SELF=$(cd $(dirname $0); pwd)
 LOGGING=false
 VERSION="1.3.5"
 SEPARATER='---------------------------'
+
+IMAGE_FORMATS=('jpg' 'jpeg' 'png' 'gif' 'bmp' 'tiff' 'tif' 'webp')
+
+function _is_image_format() {
+    local ext
+    ext=$(echo "$1" | tr '[:upper:]' '[:lower:]')
+    for fmt in "${IMAGE_FORMATS[@]}"; do
+        [[ "${ext}" == "${fmt}" ]] && return 0
+    done
+    return 1
+}
+
+function _check_dependencies() {
+    if _is_image_format "${OUT_FILE_EXT}"; then
+        if ! command -v convert &>/dev/null; then
+            echo "[ERR] ImageMagick is required to generate image files but is not installed."
+            echo
+            echo "Install ImageMagick:"
+            echo "  macOS:  brew install imagemagick"
+            echo "  Ubuntu: sudo apt install imagemagick"
+            echo "  CentOS: sudo yum install imagemagick"
+            exit 1
+        fi
+    fi
+}
 
 function _usage() {
     echo "Usage: ${SCRIPT_NAME} [OPTIONS] [DESTNATION]..."
@@ -18,6 +42,8 @@ function _usage() {
     echo "  -v, --version                  Show script version"
     echo "  -n, --number                   Specify the number of files to create"
     echo "  -e, --ext                      Specify the extension of the file to be created"
+    echo "  -s, --size                     Specify the image size (e.g. 200x150, default: 100x100)"
+    echo "                                 Only valid for image formats: jpg jpeg png gif bmp tiff webp"
     echo "  -z, --zenkaku                  Contain 2-bits characters"
     echo "  -w, --with-whitespace          Contain whitespace characters"
     echo "      --no-symbol                No containg symbol characters"
@@ -26,11 +52,12 @@ function _usage() {
     echo "      --verbose                  Print various logging information"
     echo
     echo "Example"
-    echo "  dammy -n 3 -e jpg              Generate three **.jpg in current directory"
-    echo "  dammy -e jpg xx/yy             Create ./xx/yy directory and generate a **.jpg"
-    echo "                                 in ./xx/yy dir."
-    echo "  dammy xx/yy{00..02}            Create ./xx/yy01, ./xx/yy02 and ./xx/yy02 directory"
-    echo "                                 and then generate **.txt in each dir. created"
+    echo "  dammy.sh -n 3 -e jpg              Generate three **.jpg in current directory"
+    echo "  dammy.sh -n 3 -e png -s 200x150   Generate three 200x150 **.png files"
+    echo "  dammy.sh -e jpg xx/yy             Create ./xx/yy directory and generate a **.jpg"
+    echo "                                    in ./xx/yy dir."
+    echo "  dammy.sh xx/yy{00..02}            Create ./xx/yy01, ./xx/yy02 and ./xx/yy02 directory"
+    echo "                                    and then generate **.txt in each dir. created"
     exit 0
 }
 
@@ -42,20 +69,13 @@ function _err() {
     echo "[ERR] $1" && exit 1
 }
 
-function _args_count() {
-    echo ${#ARG_VALUES[@]}
-}
-
-function _is_exist() {
-    [ -f $1 ] || [ -d $1 ] || [[ $(type $1) ]]
-}
-
 # -------------------------------------------------------------
 
 function _verbose() {
     _log "DIRS: ${DIRS[@]}"
     _log "OUT_FILE_EXT: ${OUT_FILE_EXT}"
     _log "OUT_FILE_NUMBER: ${OUT_FILE_NUMBER}"
+    _log "OUT_IMAGE_SIZE: ${OUT_IMAGE_SIZE}"
     _log "WITH_WHITESPACE: ${WITH_WHITESPACE}"
     _log "ZENKAKU: ${ZENKAKU}"
     _log "IS_NO_SYMBOL: ${IS_NO_SYMBOL}"
@@ -68,6 +88,7 @@ ARG_VALUES=()
 DIRS=()
 OUT_FILE_EXT='txt'
 OUT_FILE_NUMBER=1
+OUT_IMAGE_SIZE='100x100'
 WITH_WHITESPACE=false
 ZENKAKU=false
 IS_NO_SYMBOL=false
@@ -79,27 +100,49 @@ TMP_DIR=''
 # $1: output directory
 function _create_files() {
     local destination=$1
+    local is_img=false
+    _is_image_format "${OUT_FILE_EXT}" && is_img=true
+
+    local seed='0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
+    ${IS_NO_SYMBOL} || seed+="._-~%!$&'\()*+,;=:@"
+    ${ZENKAKU} && {
+        seed+='あかさたなはまやらわいきしちにうくすつぬへめえれえわをん'
+        ${IS_NO_SYMBOL} || seed+="。＿ー〜％！＄＆'￥（）＊＋、；＝：＠"
+    }
+
+    ${WITH_WHITESPACE} && local char_count=5 || local char_count=10
 
     set -f
     for i in $(seq ${OUT_FILE_NUMBER}); do
-        local seed='0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
-        ${IS_NO_SYMBOL} || seed+="._-~%!$&'\()*+,;=:@"
-        ${ZENKAKU} && {
-            echo 'zen'
-            seed+='あかさたなはまやらわいきしちにうくすつぬへめえれえわをん'
-            ${IS_NO_SYMBOL} || seed+="。＿ー〜％！＄＆’￥（）＊＋、；＝：＠"
-        }
+        local filename
+        if ${is_img}; then
+            if [[ ${OUT_FILE_NUMBER} -eq 1 ]]; then
+                filename="${OUT_IMAGE_SIZE}"
+            else
+                filename="${OUT_IMAGE_SIZE}_${i}"
+            fi
+        else
+            local random_str
+            random_str=$(echo ${seed} | fold -w 1 | shuf -n ${char_count} | tr '\n' ' ')
+            ${WITH_WHITESPACE} || random_str=$(echo ${random_str} | sed 's/ //g')
+            filename="${random_str}"
+        fi
 
-        ${WITH_WHITESPACE} && local char_count=5 || local char_count=10
-        local random_str=$(echo ${seed} \
-                            | fold -w 1 \
-                            | shuf -n ${char_count} \
-                            | tr '\n' ' ')
-        ${WITH_WHITESPACE} || random_str=$(echo ${random_str} | sed 's/ //g')
-
+        local filepath="${destination}/${filename}.${OUT_FILE_EXT}"
         mkdir -p "${destination}" && {
-            touch "${destination}/${random_str}.${OUT_FILE_EXT}"
-            ${IS_COLD_RUN} || _log "created: ${destination}/${random_str}.${OUT_FILE_EXT}"
+            if ${is_img}; then
+                local pointsize=$(( ${OUT_IMAGE_SIZE%%x*} / 8 ))
+                [[ ${pointsize} -lt 8 ]] && pointsize=8
+                convert -size "${OUT_IMAGE_SIZE}" xc:gray \
+                    -gravity center \
+                    -pointsize ${pointsize} \
+                    -fill black \
+                    -annotate 0 "${OUT_IMAGE_SIZE}" \
+                    "${filepath}"
+            else
+                touch "${filepath}"
+            fi
+            ${IS_COLD_RUN} || _log "created: ${filepath}"
         }
     done
     set +f
@@ -109,7 +152,6 @@ function _main() {
     ${IS_COLD_RUN} && TMP_DIR=$(mktemp -d -t ${SCRIPT_NAME})
     trap "[ -e ${TMP_DIR} ] && rm -rf ${TMP_DIR}" 1 2 3 15
 
-    # create file / directories
     for dir in ${DIRS[@]}; do
         ${IS_COLD_RUN} && dir=${TMP_DIR}/${dir}
         _create_files ${dir}
@@ -138,7 +180,6 @@ function _main() {
         }
     done
 
-    # post process of the --cold-run option
     if [ ! -z ${TMP_DIR} ]; then
         tree ${TMP_DIR} | sed "s:${TMP_DIR}:.:"
         rm -rf ${TMP_DIR}
@@ -163,7 +204,6 @@ function _analyze_args_and_options() {
                 shift
                 ;;
 
-            # Must have argument
             -n | --number)
                 set +u
                 if [[ -z "$2" ]] || [[ "$2" =~ ^-+ ]]; then
@@ -174,53 +214,35 @@ function _analyze_args_and_options() {
                 shift 2
                 ;;
 
-            # Must have argument
             -e | --ext)
                 set +u
-                    if [[ -z "$2" ]] || [[ "$2" =~ ^-+ ]]; then
-                        _err "-e option requires a value."
-                    fi
+                if [[ -z "$2" ]] || [[ "$2" =~ ^-+ ]]; then
+                    _err "-e option requires a value."
+                fi
                 set -u
                 OUT_FILE_EXT=$2
                 shift 2
                 ;;
 
-#            # Either with or without argument is possible
-#            -b | --long-b)
-#                set +u
-#                if [[ -z "$2" ]] || [[ "$2" =~ ^-+ ]]; then
-#                    OPT_B=$2
-#                    shift
-#                else
-#                    OPT_B=$2
-#                    shift 2
-#                fi
-#                set -u
-#                ;;
+            -s | --size)
+                set +u
+                if [[ -z "$2" ]] || [[ "$2" =~ ^-+ ]]; then
+                    _err "-s option requires a value (e.g. 200x150)."
+                fi
+                set -u
+                if [[ ! "$2" =~ ^[0-9]+x[0-9]+$ ]]; then
+                    _err "-s option value must be in WxH format (e.g. 200x150)."
+                fi
+                OUT_IMAGE_SIZE=$2
+                shift 2
+                ;;
 
-#            # no argument
-#            -s | --symbol)
-#                IS_NO_SYMBOL=true
-#                shift 1
-#                ;;
-
-            # after this all args include '-xx', will treat arg value
             -- | -)
                 shift 1
                 ARG_VALUES+=( "$@" )
                 break
                 ;;
 
-            # for true or false flags, no argument
-            -*)
-                if [[ "$1" =~ 'w' ]]; then
-                    WITH_WHITESPACE='true'
-                fi
-                if [[ "$1" =~ 'z' ]]; then
-                    ZENKAKU='true'
-                fi
-                shift
-                ;;
             --*)
                 if [[ "$1" =~ 'with-whitespace' ]]; then
                     WITH_WHITESPACE='true'
@@ -240,7 +262,16 @@ function _analyze_args_and_options() {
                 shift
                 ;;
 
-            # arguments
+            -*)
+                if [[ "$1" =~ 'w' ]]; then
+                    WITH_WHITESPACE='true'
+                fi
+                if [[ "$1" =~ 'z' ]]; then
+                    ZENKAKU='true'
+                fi
+                shift
+                ;;
+
             *)
                 ARG_VALUES+=("$1")
                 shift
@@ -280,6 +311,7 @@ function _verify_output_dirs() {
 # -------------------------------------------------------------
 _analyze_args_and_options $@ && {
     _set_global_var && _verify_global_var && {
+        _check_dependencies
         _verbose
         _log 'start main process..' && _log "${SEPARATER}"
         _main
