@@ -1,5 +1,8 @@
 test/
 
+# Claude Code
+.claude/
+
 # vuepress
 node_modules
 .temp
