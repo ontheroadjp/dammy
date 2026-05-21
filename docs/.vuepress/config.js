@@ -16,7 +16,7 @@ module.exports = {
         },
     },
     head: [
-        ['link', { rel: 'icon', type: 'image/png', href: '/dammy/images/hero.png' }],
+        ['link', { rel: 'icon', type: 'image/png', href: '/dammy/images/hero2.jpg' }],
         ['meta', { name: 'og:url', content: 'https://ontheroadjp.github.com/dammy/' }],
         ['meta', { name: 'og:type', content: 'website' }],
         ['meta', { name: 'og:title', content: 'dammy' }],

@@ -1,6 +1,6 @@
 ---
 home: true
-heroImage: /images/hero.png
+heroImage: /images/hero2.jpg
 tagline: Simple and Usuful shellscript
 actions:
   - text: Start
