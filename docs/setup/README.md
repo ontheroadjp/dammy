@@ -1,6 +1,5 @@
 # Setup
 
-
 ## Install
 
 Just git clone the repository and set the PATH to complete the installation.
@@ -15,6 +14,17 @@ $ echo 'PATH=/path/to/dammy:$PATH' >> .bash_profile
 $ echo 'PATH=/path/to/dammy:$PATH' >> .zprofile
 ```
 
+### ImageMagick (optional)
+
+ImageMagick is required only when generating image files (jpg, jpeg, png, gif, bmp, tiff, webp).
+
+```bash
+# macOS
+$ brew install imagemagick
+
+# Ubuntu
+$ sudo apt install imagemagick
+```
 
 ## Uninstall
 
@@ -24,4 +34,3 @@ $ rm -rf /path/to/dammy
 Remove PATH setting from ``.bash_profile`` or ``.zprofile``.
 
 It's all done.
-

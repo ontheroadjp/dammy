@@ -10,7 +10,8 @@
 
 - 多階層のディレクトリ作成
 - 作成したディレクトリの中へファイルの作成
-- 作成するファイルは、記号や空白を含むことも可能
+- ImageMagick を使った実際の画像ファイルの生成（jpg, png, gif など）
+- 作成するファイルは、記号・空白・全角文字を含むことも可能
 
 
 ## 例えば・・・
@@ -18,7 +19,7 @@
 このコマンドを実行するだけで、
 
 ```bash
-dammy hoge/{foo,bar}/piyo -n 3 --each --with-whitespace
+dammy.sh hoge/{foo,bar}/piyo -n 3 --each --with-whitespace
 ```
 
 以下のようなディレクトリツリーが構築されます。
@@ -35,22 +36,22 @@ hoge
 ├── H t 8 9 h .txt
 ├── \ U X , ! .txt
 ├── bar
-│   ├── ! + w 2 q .txt
-│   ├── , ) R ; c .txt
-│   ├── d P 9 6 i .txt
-│   └── piyo
-│       ├── % U 2 P L .txt
-│       ├── 5 R J j c .txt
-│       └── O S : 3 E .txt
+│   ├── ! + w 2 q .txt
+│   ├── , ) R ; c .txt
+│   ├── d P 9 6 i .txt
+│   └── piyo
+│       ├── % U 2 P L .txt
+│       ├── 5 R J j c .txt
+│       └── O S : 3 E .txt
 ├── d M 6 2 x .txt
 ├── foo
-│   ├── $ A P H _ .txt
-│   ├── J Z d ' a .txt
-│   ├── i W S _ 1 .txt
-│   └── piyo
-│       ├── : L w & I .txt
-│       ├── A e @ j & .txt
-│       └── r W 2 * ( .txt
+│   ├── $ A P H _ .txt
+│   ├── J Z d ' a .txt
+│   ├── i W S _ 1 .txt
+│   └── piyo
+│       ├── : L w & I .txt
+│       ├── A e @ j & .txt
+│       └── r W 2 * ( .txt
 ├── v @ R q j .txt
 └── y g R , 9 .txt
 ```

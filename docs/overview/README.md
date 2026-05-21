@@ -7,14 +7,15 @@ In system development where files and directories are read from directories, thi
 
 ## Main Features
 - Create multi-level directories
-- Create files in the created directory.
-- The files created can contain symbols and spaces.
+- Create files in the created directory
+- Generate actual image files for image formats (jpg, png, gif, etc.) using ImageMagick
+- The files created can contain symbols, spaces, and 2-byte characters
 
 ## Example
 Just run this command...
 
 ```bash
-dammy hoge/{foo,bar}/piyo -n 3 --each --with-whitespace
+dammy.sh hoge/{foo,bar}/piyo -n 3 --each --with-whitespace
 ```
 
 A directory tree will be constructed as shown below.
