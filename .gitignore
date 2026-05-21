@@ -4,6 +4,7 @@ test/
 node_modules
 .temp
 .cache
+docs/.vuepress/dist
 
 # General
 .DS_Store
@@ -11,7 +12,7 @@ node_modules
 .LSOverride
 
 # Icon must end with two \r
-Icon
+Icon
 
 # Thumbnails
 ._*
