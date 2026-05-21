@@ -9,6 +9,31 @@ LOGGING=false
 VERSION="1.3.5"
 SEPARATER='---------------------------'
 
+IMAGE_FORMATS=('jpg' 'jpeg' 'png' 'gif' 'bmp' 'tiff' 'tif' 'webp')
+
+function _is_image_format() {
+    local ext
+    ext=$(echo "$1" | tr '[:upper:]' '[:lower:]')
+    for fmt in "${IMAGE_FORMATS[@]}"; do
+        [[ "${ext}" == "${fmt}" ]] && return 0
+    done
+    return 1
+}
+
+function _check_dependencies() {
+    if _is_image_format "${OUT_FILE_EXT}"; then
+        if ! command -v convert &>/dev/null; then
+            echo "[ERR] ImageMagick is required to generate image files but is not installed."
+            echo
+            echo "Install ImageMagick:"
+            echo "  macOS:  brew install imagemagick"
+            echo "  Ubuntu: sudo apt install imagemagick"
+            echo "  CentOS: sudo yum install imagemagick"
+            exit 1
+        fi
+    fi
+}
+
 function _usage() {
     echo "Usage: ${SCRIPT_NAME} [OPTIONS] [DESTNATION]..."
     echo "  This script generate various files and directories."
@@ -18,6 +43,8 @@ function _usage() {
     echo "  -v, --version                  Show script version"
     echo "  -n, --number                   Specify the number of files to create"
     echo "  -e, --ext                      Specify the extension of the file to be created"
+    echo "  -s, --size                     Specify the image size (e.g. 200x150, default: 100x100)"
+    echo "                                 Only valid for image formats: jpg jpeg png gif bmp tiff webp"
     echo "  -z, --zenkaku                  Contain 2-bits characters"
     echo "  -w, --with-whitespace          Contain whitespace characters"
     echo "      --no-symbol                No containg symbol characters"
@@ -27,6 +54,7 @@ function _usage() {
     echo
     echo "Example"
     echo "  dammy -n 3 -e jpg              Generate three **.jpg in current directory"
+    echo "  dammy -n 3 -e png -s 200x150   Generate three 200x150 **.png files"
     echo "  dammy -e jpg xx/yy             Create ./xx/yy directory and generate a **.jpg"
     echo "                                 in ./xx/yy dir."
     echo "  dammy xx/yy{00..02}            Create ./xx/yy01, ./xx/yy02 and ./xx/yy02 directory"
@@ -60,6 +88,7 @@ function _verbose() {
     _log "ZENKAKU: ${ZENKAKU}"
     _log "IS_NO_SYMBOL: ${IS_NO_SYMBOL}"
     _log "IS_EACH: ${IS_EACH}"
+    _log "OUT_IMAGE_SIZE: ${OUT_IMAGE_SIZE}"
     _log "IS_COLD_RUN: ${IS_COLD_RUN}"
     _log "${SEPARATER}"
 }
@@ -68,6 +97,7 @@ ARG_VALUES=()
 DIRS=()
 OUT_FILE_EXT='txt'
 OUT_FILE_NUMBER=1
+OUT_IMAGE_SIZE='100x100'
 WITH_WHITESPACE=false
 ZENKAKU=false
 IS_NO_SYMBOL=false
@@ -97,8 +127,30 @@ function _create_files() {
         ${WITH_WHITESPACE} || random_str=$(echo ${random_str} | sed 's/ //g')
 
         mkdir -p "${destination}" && {
-            touch "${destination}/${random_str}.${OUT_FILE_EXT}"
-            ${IS_COLD_RUN} || _log "created: ${destination}/${random_str}.${OUT_FILE_EXT}"
+            local filename
+            if _is_image_format "${OUT_FILE_EXT}"; then
+                if [[ ${OUT_FILE_NUMBER} -eq 1 ]]; then
+                    filename="${OUT_IMAGE_SIZE}"
+                else
+                    filename="${OUT_IMAGE_SIZE}_${i}"
+                fi
+            else
+                filename="${random_str}"
+            fi
+            local filepath="${destination}/${filename}.${OUT_FILE_EXT}"
+            if _is_image_format "${OUT_FILE_EXT}"; then
+                local pointsize=$(( ${OUT_IMAGE_SIZE%%x*} / 8 ))
+                [[ ${pointsize} -lt 8 ]] && pointsize=8
+                convert -size "${OUT_IMAGE_SIZE}" xc:gray \
+                    -gravity center \
+                    -pointsize ${pointsize} \
+                    -fill black \
+                    -annotate 0 "${OUT_IMAGE_SIZE}" \
+                    "${filepath}"
+            else
+                touch "${filepath}"
+            fi
+            ${IS_COLD_RUN} || _log "created: ${filepath}"
         }
     done
     set +f
@@ -181,6 +233,20 @@ function _analyze_args_and_options() {
                     fi
                 set -u
                 OUT_FILE_EXT=$2
+                shift 2
+                ;;
+
+            # Must have argument
+            -s | --size)
+                set +u
+                if [[ -z "$2" ]] || [[ "$2" =~ ^-+ ]]; then
+                    _err "-s option requires a value (e.g. 200x150)."
+                fi
+                set -u
+                if [[ ! "$2" =~ ^[0-9]+x[0-9]+$ ]]; then
+                    _err "-s option value must be in WxH format (e.g. 200x150)."
+                fi
+                OUT_IMAGE_SIZE=$2
                 shift 2
                 ;;
 
@@ -279,6 +345,7 @@ function _verify_output_dirs() {
 # -------------------------------------------------------------
 _analyze_args_and_options $@ && {
     _set_global_var && _verify_global_var && {
+        _check_dependencies
         _verbose
         _log 'start main process..' && _log "${SEPARATER}"
         _main
