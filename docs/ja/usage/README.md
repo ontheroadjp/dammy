@@ -1,8 +1,8 @@
 # 使い方
 
-## 基本的な使い方
+## パターン 1 — 一番シンプルな使い方
 
-引数なしで ``dammy.sh`` を実行すると、カレントディレクトリにダミーの `.txt` ファイルが1つ生成されます。
+引数なしで `dammy.sh` を実行すると、カレントディレクトリにランダムな名前の `.txt` ファイルが1つ生成されます。
 
 ```bash
 $ dammy.sh
@@ -13,24 +13,26 @@ $ tree
 
 ---
 
-## ファイルの生成
-
-### ファイル数の指定
+## パターン 2 — 複数のファイルを一気に作成
 
 `-n` オプションで生成するファイル数を指定します。
 
 ```bash
-$ dammy.sh -n 3
+$ dammy.sh -n 5
 $ tree
 .
 ├── $qxT2+_'uW.txt
+├── Hk3mNzKs.txt
 ├── pdK:gXwu.Q.txt
-└── tl4NUT(q7b.txt
+├── tl4NUT(q7b.txt
+└── Vu8nXjBsLe.txt
 ```
 
-### 拡張子の指定
+---
 
-`-e` オプションで拡張子を指定します。デフォルトは `txt` です。
+## パターン 3 — 拡張子を指定する
+
+`-e` オプションで任意の拡張子のファイルを生成します。
 
 ```bash
 $ dammy.sh -n 3 -e csv
@@ -43,13 +45,11 @@ $ tree
 
 ---
 
-## 画像ファイルの生成
+## パターン 4 — 実際の画像ファイルを生成する
 
-`-e` に画像フォーマットを指定すると、空ファイルの代わりに ImageMagick を使って**実際の画像ファイル**を生成します。グレー一色の背景に画像サイズが中央に表記されたシンプルな画像で、Web 開発のモックアップやフロントエンドのテストにすぐ使えます。
+画像フォーマットを指定すると、ImageMagick を使って実際の画像ファイルを生成します。グレー一色の背景にサイズが中央に表記されたシンプルな画像で、Web 開発のプレースホルダーとしてすぐ使えます。
 
 対応フォーマット: `jpg` `jpeg` `png` `gif` `bmp` `tiff` `webp`
-
-ファイル名は画像サイズになります（例: `100x100.jpg`）。複数生成時は連番が付きます。
 
 ```bash
 $ dammy.sh -n 3 -e jpg
@@ -60,30 +60,175 @@ $ tree
 └── 100x100_3.jpg
 ```
 
-### 画像サイズの指定
-
-`-s` オプションで画像サイズを `幅x高さ` の形式で指定します。デフォルトは `100x100` です。
+### `-s` で画像サイズを指定
 
 ```bash
-$ dammy.sh -n 3 -e png -s 320x240
+$ dammy.sh -n 4 -e png -s 320x240
 $ tree
 .
 ├── 320x240_1.png
 ├── 320x240_2.png
-└── 320x240_3.png
+├── 320x240_3.png
+└── 320x240_4.png
 ```
-
-::: tip
-画像生成には ImageMagick のインストールが必要です。未インストールの場合、dammy はインストール方法を案内してエラー終了します。
-:::
 
 ---
 
-## ファイル名オプション
+## パターン 5 — ディレクトリの中にファイルを作成
+
+引数にディレクトリパスを渡します。存在しないディレクトリは自動で作成されます。
+
+```bash
+$ dammy.sh -n 3 work
+$ tree
+.
+└── work
+    ├── 9BcTRkOgLw.txt
+    ├── J(q=E.@Ma0.txt
+    └── x&bY,2s)qg.txt
+```
+
+---
+
+## パターン 6 — 複数のディレクトリに同時に作成
+
+複数のパスを渡すと、それぞれのディレクトリにファイルを生成します。
+
+```bash
+$ dammy.sh -n 2 assets/images assets/css assets/js
+$ tree
+.
+└── assets
+    ├── css
+    │   ├── 4Jd8wNkR.txt
+    │   └── hR2nQvLw.txt
+    ├── images
+    │   ├── 3Kp9mXtA.txt
+    │   └── uZ7bYcFe.txt
+    └── js
+        ├── aX1mBqTy.txt
+        └── sF6vUzPc.txt
+```
+
+---
+
+## パターン 7 — 深い階層のディレクトリツリーを作成
+
+スラッシュ区切りで指定すると、中間ディレクトリも自動で作成されます。
+
+```bash
+$ dammy.sh -n 2 project/src/components
+$ tree
+.
+└── project
+    └── src
+        └── components
+            ├── :w9a@DmC~N.txt
+            └── Ab3Kp!mQvX.txt
+```
+
+---
+
+## パターン 8 — 全階層にファイルを作成（`--each`）
+
+`--each` を付けると、最深ディレクトリだけでなくパス上の全ディレクトリにファイルを生成します。
+
+```bash
+$ dammy.sh -n 2 project/src/components --each
+$ tree
+.
+└── project
+    ├── Pq7mNzKsYo.txt
+    ├── Vu8nXjBsLe.txt
+    └── src
+        ├── &dGzWh!F2f.txt
+        ├── Hk3mNzKs.txt
+        └── components
+            ├── %\'fRw2z,h.txt
+            └── yLv*lTz\BG.txt
+```
+
+---
+
+## パターン 9 — シェルのブレース展開と組み合わせる
+
+シェルのブレース展開を使って、分岐したディレクトリツリーを一発で構築できます。
+
+```bash
+$ dammy.sh -n 2 src/{components,pages,utils}
+$ tree
+.
+└── src
+    ├── components
+    │   ├── Kd4pRmTzWq.txt
+    │   └── Vu8nXjBsLe.txt
+    ├── pages
+    │   ├── 9k~MYXwoH!.txt
+    │   └── ey\%lAFx2V.txt
+    └── utils
+        ├── Ab3Kp!mQvX.txt
+        └── :w9a@DmC~N.txt
+```
+
+---
+
+## パターン 10 — ブレース展開 ＋ `--each`
+
+ブレース展開と `--each` を組み合わせると、分岐した全ディレクトリレベルにファイルを配置できます。
+
+```bash
+$ dammy.sh -n 2 hoge/{foo,bar}/piyo --each
+$ tree
+.
+└── hoge
+    ├── ) R a Y A .txt
+    ├── H t 8 9 h .txt
+    ├── bar
+    │   ├── ! + w 2 q .txt
+    │   ├── , ) R ; c .txt
+    │   └── piyo
+    │       ├── % U 2 P L .txt
+    │       └── 5 R J j c .txt
+    └── foo
+        ├── $ A P H _ .txt
+        ├── J Z d ' a .txt
+        └── piyo
+            ├── : L w & I .txt
+            └── A e @ j & .txt
+```
+
+---
+
+## パターン 11 — 複数ディレクトリにダミー画像を配置
+
+ブレース展開と組み合わせて、複数のディレクトリにダミー画像をまとめて配置できます。フロントエンドのアセット構造を素早く作るのに便利です。
+
+```bash
+$ dammy.sh -n 3 -e jpg -s 800x600 images/{pc,sp,tablet}
+$ tree
+.
+└── images
+    ├── pc
+    │   ├── 800x600_1.jpg
+    │   ├── 800x600_2.jpg
+    │   └── 800x600_3.jpg
+    ├── sp
+    │   ├── 800x600_1.jpg
+    │   ├── 800x600_2.jpg
+    │   └── 800x600_3.jpg
+    └── tablet
+        ├── 800x600_1.jpg
+        ├── 800x600_2.jpg
+        └── 800x600_3.jpg
+```
+
+---
+
+## パターン 12 — 特殊なファイル名
 
 ### 記号なし
 
-``--no-symbol`` を付けると、英数字のみのファイル名でファイルを生成します。
+`--no-symbol` で英数字のみのファイル名を生成します。
 
 ```bash
 $ dammy.sh -n 3 --no-symbol
@@ -96,7 +241,7 @@ $ tree
 
 ### 空白入り
 
-``--with-whitespace`` を付けると、ファイル名にスペースを含めます。スペース入りパスの処理をテストしたいときに便利です。
+`--with-whitespace` でファイル名にスペースを含めます。スペース入りパスの処理をテストするのに便利です。
 
 ```bash
 $ dammy.sh -n 3 --with-whitespace
@@ -109,7 +254,7 @@ $ tree
 
 ### 全角文字入り
 
-``--zenkaku`` を付けると、ファイル名に全角文字（日本語）を含めます。マルチバイトファイル名の処理をテストしたいときに便利です。
+`--zenkaku` でファイル名に日本語（全角）を含めます。マルチバイトファイル名の処理をテストするのに便利です。
 
 ```bash
 $ dammy.sh -n 3 --zenkaku
@@ -122,112 +267,36 @@ $ tree
 
 ---
 
-## ディレクトリの生成
+## パターン 13 — `--cold-run` で事前確認
 
-引数にパスを渡すと、ディレクトリを作成してその中にファイルを生成します。中間ディレクトリが存在しない場合は自動で作成されます。
-
-```bash
-$ dammy.sh hoge/foo/bar -n 2
-$ tree
-.
-└── hoge
-    └── foo
-        └── bar
-            ├── :w9a@DmC~N.txt
-            └── Ab3Kp!mQvX.txt
-```
-
-### 複数のディレクトリ
-
-複数のパスを渡すと、それぞれのディレクトリにファイルを生成します。
+実行前に生成されるファイル構造を確認したい場合は `--cold-run` を付けます。実際にはファイルを生成せず、ツリーのプレビューだけを表示します。
 
 ```bash
-$ dammy.sh hoge foo bar
-$ tree
-.
-├── bar
-│   └── J(q=E.@Ma0.txt
-├── foo
-│   └── x&bY,2s)qg.txt
-└── hoge
-    └── 9BcTRkOgLw.txt
-```
-
-### 中間ディレクトリにもファイルを生成
-
-``--each`` を付けると、最深のディレクトリだけでなく、パス上の全ディレクトリにファイルを生成します。
-
-```bash
-$ dammy.sh hoge/foo/bar --each
-$ tree
+$ dammy.sh -n 3 -e jpg hoge/{foo,bar}/piyo --each --cold-run
 .
 └── hoge
-    ├── &dGzWh!F2f.txt
-    ├── foo
-    │   ├── Pq7mNzKsYo.txt
-    │   └── bar
-    │       └── %\'fRw2z,h.txt
-    └── yLv*lTz\BG.txt
-```
-
----
-
-## シェルのブレース展開
-
-シェルのブレース展開と組み合わせることができます。
-
-```bash
-$ dammy.sh hoge/{foo,bar}/piyo -n 2
-$ tree
-.
-└── hoge
+    ├── 100x100_1.jpg
+    ├── 100x100_2.jpg
+    ├── 100x100_3.jpg
     ├── bar
+    │   ├── 100x100_1.jpg
+    │   ├── 100x100_2.jpg
+    │   ├── 100x100_3.jpg
     │   └── piyo
-    │       ├── ey\%lAFx2V.txt
-    │       └── 9k~MYXwoH!.txt
+    │       ├── 100x100_1.jpg
+    │       ├── 100x100_2.jpg
+    │       └── 100x100_3.jpg
     └── foo
+        ├── 100x100_1.jpg
+        ├── 100x100_2.jpg
+        ├── 100x100_3.jpg
         └── piyo
-            ├── Kd4pRmTzWq.txt
-            └── Vu8nXjBsLe.txt
+            ├── 100x100_1.jpg
+            ├── 100x100_2.jpg
+            └── 100x100_3.jpg
 ```
 
----
-
-## Cold run（事前確認）
-
-``--cold-run`` を付けると、実際にはファイルを生成せず、生成される予定のディレクトリツリーだけを表示します。実行前の確認に使えます。
-
-```bash
-$ dammy.sh hoge/{foo,bar}/piyo --each -n 3 --cold-run
-.
-└── hoge
-    ├── +_60SaTUoh.txt
-    ├── COrDP*WZ2X.txt
-    ├── S:0myGYPX(.txt
-    ├── bar
-    │   ├── 9\\=o7y5):e.txt
-    │   ├── CJso1@z)ZD.txt
-    │   ├── Lg7)ruOtbH.txt
-    │   └── piyo
-    │       ├── &:u-BmLSa3.txt
-    │       ├── _j,eoIl1nZ.txt
-    │       └── gd,5xhU(!o.txt
-    ├── d6g.pTULy9.txt
-    ├── foo
-    │   ├── 0A)T=qK@Uh.txt
-    │   ├── R8*.40;B_u.txt
-    │   ├── kd$%K,)24l.txt
-    │   └── piyo
-    │       ├── (\\3p0ibK1S.txt
-    │       ├── B0dGSQxzmv.txt
-    │       └── ~L3\\SGc$X9.txt
-    ├── n(x5@_alTr.txt
-    └── nCH:qsx\\(f.txt
-
-5 directories, 18 files
-```
-
-問題なければ ``--cold-run`` だけを外して同じコマンドを実行してください。
+問題なければ `--cold-run` だけを外して同じコマンドを実行してください。
 
 ---
 
